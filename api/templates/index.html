@@ -1,0 +1,98 @@
+<head>
+    <title>Main page</title>
+    <style>
+        #ars {
+            font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+            border-collapse: collapse;
+            margin: 20px;
+            padding: 10px;
+            width: 95%;
+        }
+
+        .audioWav {
+            /*width: 95%;*/
+            padding: 10px;
+        }
+
+        audio {
+            min-width: 300px;
+            width: 100%;
+            text-align: center;
+        }
+
+        #ars tr:nth-child(even) {
+            background-color: #e7f2e0;
+        }
+
+        .content {
+            height: 20px;
+        }
+
+        #ars tr:hover {
+            background-color: #ddd;
+        }
+
+        #ars td, #customers th {
+            border: 1px solid #ddd;
+            text-align: center;
+            word-wrap: break-word;
+            padding: 3px;
+        }
+
+        #ars th {
+            padding-top: 6px;
+            padding-bottom: 6px;
+            text-align: center;
+            background-color: #4CAF50;
+            color: white;
+        }
+    </style>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.20/datatables.min.css"/>
+    <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.20/datatables.min.js"></script>
+    <script type="text/javascript" src="https://www.kryogenix.org/code/browser/sorttable/sorttable.js"></script>
+    {{/*    <script src="static/sorttable.js"></script>*/}}
+</head>
+
+<body>
+<h1>Таблица записей</h1>
+
+<table id="ars" class="sortable">
+    <tr class="columnNames">
+        <th>ID</th>
+        <th>ANI</th>
+        <th>DNIS</th>
+        <th>Profile</th>
+        <th>Uterance</th>
+        <th>Interpritation</th>
+        <th>Confidence</th>
+        <th>WAVRecord</th>
+        <th>CreatedOn</th>
+    </tr>
+    <tbody>
+    {{range .Ars}}
+        <tr class="content">
+            <td>{{.ID}}</td>
+            <td>{{.ANI}}</td>
+            <td>{{.DNIS}}</td>
+            <td>{{.Profile}}</td>
+            <td>{{.Uterance}}</td>
+            <td>{{.Interpritation}}</td>
+            <td>{{.Confidence}}</td>
+            <td class="audioWav">
+                <audio controls preload="auto" class="audioPlayer">
+                    <source src="/waverecord/{{.ID}}" type="audio/wav">
+                    Your browser does not support the audio element.
+                </audio>
+            </td>
+            <td>{{.CreatedOn}}</td>
+        </tr>
+    {{end}}
+    </tbody>
+
+</table>
+
+</body>

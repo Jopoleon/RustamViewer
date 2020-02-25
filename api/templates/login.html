@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script src="static/css/login.css" type="text/css"></script>
+    <title>Registration</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="row center-block">
+        <div class="card card-signin center-block" style="margin-top: 20%">
+            <div class="card-body center-block" style="width: 50%">
+                <h5 class="card-title text-center">Sign In</h5>
+                <form class="form-signin" action="/login" method="post">
+                    <div class="form-label-group">
+                        <input id="inputEmail" class="form-control" name="email"
+                               required  autofocus>
+                        <label for="inputEmail">Email or Login</label>
+                    </div>
+
+                    <div class="form-label-group">
+                        <input type="password" id="inputPassword" name="password"
+                               class="form-control" placeholder="Password" required>
+                        <label for="inputPassword">Password</label>
+                    </div>
+
+                    <div class="custom-control custom-checkbox mb-3">
+                        <input type="checkbox" class="custom-control-input" id="customCheck1">
+                        <label class="custom-control-label" for="customCheck1">Remember password</label>
+                    </div>
+
+                    <div class="center-block">
+                        <p class="sendCredsErrors center-block"
+                           style="font-size: 18px; color: #ea4335; text-align: center"></p>
+                    </div>
+                    <input class="btn btn-lg btn-primary btn-block text-uppercase" onclick="sendCreds()"
+                           value="Sign in">
+                    <script>
+                        function sendCreds() {
+                            $('.sendCredsErrors').empty();
+
+                            $.ajax({
+                                type: "POST",
+                                url: "/login",
+                                data: JSON.stringify({
+                                    email: $('#inputEmail').val(), password: $('#inputPassword').val()
+                                }),
+                                fail: function(xhr, textStatus, errorThrown) {
+                                    // console.log("fail");
+                                    // console.log(errorThrown);
+                                    // console.log(textStatus);
+                                    // console.log(xhr);
+                                    $('.sendCredsErrors').append(xhr.responseText);
+                                },
+                                error: function(jqXHR, textStatus, errorThrown) {
+                                    // console.log("error");
+                                    // console.log(errorThrown);
+                                    // console.log(textStatus);
+                                    // console.log(jqXHR);
+                                    $('.sendCredsErrors').append(jqXHR.responseText);
+                                },
+                                success: function (data, textStatus, jqXHR ) {
+                                    window.location.href = "/"
+                                },
+                            });
+
+                        }
+                    </script>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
