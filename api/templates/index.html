@@ -1,6 +1,12 @@
+<html>
 <head>
     <title>Main page</title>
     <style>
+        body {
+            margin: 20px;
+            padding: 10px;
+        }
+
         #ars {
             font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
             border-collapse: collapse;
@@ -46,6 +52,11 @@
             background-color: #4CAF50;
             color: white;
         }
+
+        label {
+            font-family: "DejaVu Sans Mono";
+            text-align: center;
+        }
     </style>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
@@ -54,11 +65,37 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.20/datatables.min.css"/>
     <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.20/datatables.min.js"></script>
     <script type="text/javascript" src="https://www.kryogenix.org/code/browser/sorttable/sorttable.js"></script>
-    {{/*    <script src="static/sorttable.js"></script>*/}}
+
 </head>
 
 <body>
 <h1>Таблица записей</h1>
+<h4>Это первые 100 записей, для поиска используйте фильтры.</h4>
+<div class="container-fluid">
+    <div class="row">
+        <div class="form-group-row col-xs-2">
+            <input id="ani" class="form-control" type="text" placeholder="ANI" name="ani">
+            <label for="ani">ANI</label>
+        </div>
+        <div class="form-group-row col-xs-2">
+            <input id="dnis" class="form-control" type="text" placeholder="DNIS" name="dnis">
+            <label for="dnis">DNIS</label>
+        </div>
+        <div class="form-group-row col-xs-2">
+            <input id="utterance" class="form-control" type="text" placeholder="Utterance" name="Utterance">
+            <label for="utterance">utterance</label>
+        </div>
+        <div class="form-group-row col-xs-2">
+            <input id="confidence" class="form-control" type="number" name="price"
+                   pattern="[0-9]+([\.,][0-9]+)?" step="0.01"
+                   title="This should be a number with up to 2 decimal places.">
+            <label for="confidence">confidence</label>
+        </div>
+    </div>
+    <div>
+        <button id="submitFilters" class="btn btn-primary">Submit filters</button>
+    </div>
+</div>
 
 <table id="ars" class="sortable">
     <tr class="columnNames">
@@ -92,7 +129,7 @@
         </tr>
     {{end}}
     </tbody>
-
 </table>
 
 </body>
+</html>

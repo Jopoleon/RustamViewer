@@ -3,7 +3,6 @@ package storage
 import (
 	"database/sql"
 	"fmt"
-	"math/rand"
 	"time"
 
 	uuid "github.com/satori/go.uuid"
@@ -18,6 +17,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	//sq "github.com/Masterminds/squirrel"
 )
 
 type DB struct {
@@ -33,6 +33,7 @@ func NewPostgres(cfg config.Config, logger *logrus.Logger) (*DB, error) {
 		cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBPass, cfg.DBName)
 	db, err := sqlx.Connect("postgres", str)
 	if err != nil {
+
 		logger.Errorf("could not establish connection to ", str, err)
 		return nil, errors.WithStack(err)
 	}
@@ -42,7 +43,7 @@ func NewPostgres(cfg config.Config, logger *logrus.Logger) (*DB, error) {
 }
 
 func (db *DB) CreateUser() (*models.User, error) {
-	login:= uuid.NewV4()
+	login := uuid.NewV4()
 
 	password := RandomString(10)
 	bpas, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
@@ -95,9 +96,18 @@ func (db *DB) GetWaveRecordByID(id int) (*models.ASR, error) {
 	return &res[0], nil
 }
 
+func (db *DB) GetWaveRecord(id int) (*models.ASR, error) {
+	res := []models.ASR{}
+	err := db.DB.Select(&res, "SELECT * FROM asrresults WHERE id=$1;", id)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	return &res[0], nil
+}
+
 func (db *DB) GetWaveRecordByProfileName(profileName string) ([]models.ASR, error) {
 	res := []models.ASR{}
-	err := db.DB.Select(&res, "SELECT * FROM asrresults WHERE profile=$1;", profileName)
+	err := db.DB.Select(&res, "SELECT * FROM asrresults WHERE profile=$1 LIMIT 100;", profileName)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -106,7 +116,7 @@ func (db *DB) GetWaveRecordByProfileName(profileName string) ([]models.ASR, erro
 
 func (db *DB) GetWaveRecordByFilters(profileName string) ([]models.ASR, error) {
 	res := []models.ASR{}
-	
+
 	err := db.DB.Select(&res, "SELECT * FROM asrresults WHERE profile=$1;", profileName)
 	if err != nil {
 		return nil, errors.WithStack(err)
@@ -143,22 +153,4 @@ func (db *DB) GetUserSession(user_id int) (string, error) {
 		return session, errors.WithStack(err)
 	}
 	return session, nil
-}
-
-const charset = "abcdefghijklmnopqrstuvwxyz" +
-	"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-
-var seededRand = rand.New(
-	rand.NewSource(time.Now().UnixNano()))
-
-func StringWithCharset(length int, charset string) string {
-	b := make([]byte, length)
-	for i := range b {
-		b[i] = charset[seededRand.Intn(len(charset))]
-	}
-	return string(b)
-}
-
-func RandomString(length int) string {
-	return StringWithCharset(length, charset)
 }

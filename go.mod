@@ -3,6 +3,7 @@ module github.com/Jopoleon/rustamViewer
 go 1.13
 
 require (
+	github.com/Masterminds/squirrel v1.2.0
 	github.com/go-chi/chi v4.0.3+incompatible
 	github.com/go-chi/cors v1.0.0
 	github.com/gorilla/securecookie v1.1.1
