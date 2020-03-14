@@ -1,0 +1,202 @@
+{{define "indexPage"}}
+
+  <html>
+  <head>
+    <title>Main page</title>
+    <style>
+
+
+      #companies {
+        font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+        border-collapse: collapse;
+        margin: 20px;
+        padding: 10px;
+        width: 95%;
+      }
+
+      .audioWav {
+        /*width: 95%;*/
+        padding: 10px;
+      }
+
+      audio {
+        min-width: 300px;
+        width: 100%;
+        text-align: center;
+      }
+
+      #companies tr:nth-child(even) {
+        background-color: #e7f2e0;
+      }
+
+      .content {
+        height: 20px;
+      }
+
+      #companies tr:hover {
+        background-color: #ddd;
+      }
+
+      #companies td, #customers th {
+        border: 1px solid #ddd;
+        text-align: center;
+        word-wrap: break-word;
+        padding: 3px;
+      }
+
+      #companies th {
+        padding-top: 6px;
+        padding-bottom: 6px;
+        text-align: center;
+        background-color: #4CAF50;
+        color: white;
+      }
+
+      label {
+        font-family: "DejaVu Sans Mono";
+        text-align: center;
+      }
+    </style>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.20/datatables.min.css"/>
+    <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.20/datatables.min.js"></script>
+    <script type="text/javascript" src="https://www.kryogenix.org/code/browser/sorttable/sorttable.js"></script>
+
+  </head>
+
+  <body>
+  {{template "menu" .User}}
+
+  <div class="container-fluid">
+    <h1>Таблица записей</h1>
+    <h4>Это первые 100 записей, для поиска используйте фильтры.</h4>
+    <div class="row">
+      <div class="form-group-row col-xs-2">
+        <input id="ani" class="form-control" type="text" placeholder="ANI" name="ani">
+        <label for="ani">ANI</label>
+      </div>
+      <div class="form-group-row col-xs-2">
+        <input id="dnis" class="form-control" type="text" placeholder="DNIS" name="dnis">
+        <label for="dnis">DNIS</label>
+      </div>
+      <div class="form-group-row col-xs-2">
+        <input id="utterance" class="form-control" type="text" placeholder="Utterance" name="Utterance">
+        <label for="utterance">Utterance</label>
+      </div>
+      <div class="form-group-row col-xs-2">
+        <input id="profileName" class="form-control" type="text" placeholder="Profile name" name="Profile name">
+        <label for="profileName">Profile name</label>
+      </div>
+      <div class="form-group-row col-xs-2">
+        <input id="confidence" class="form-control" type="number" name="price"
+               pattern="[0-9]+([\.,][0-9]+)?" step="0.01"
+               title="This should be a number with up to 2 decimal places.">
+        <label for="confidence">Confidence</label>
+        <div class="dropdown">
+          <label for="sign">Знак:</label>
+          <select id="sign" name="cars">
+            <option value="<"> < </option>
+            <option value="=">  =  </option>
+            <option value=">">  >  </option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div>
+      <button onclick="submitFilters()" id="submitFilters" class="btn btn-primary">Submit filters</button>
+    </div>
+    <div><p id="submitFiltersError"></p></div>
+    <script>
+        function submitFilters() {
+            $.ajax({
+                type: "get",
+                url: "/filterTable",
+                data: {
+                    dnis: $('#dnis').val(),
+                    ani: $('#ani').val(),
+                    profileName: $('#profileName').val(),
+                    utterance: $('#utterance').val(),
+                    confidence: $('#confidence').val(),
+                    confidenceType: $('#sign').val(),
+                },
+                fail: function (xhr, textStatus, errorThrown) {
+                    $('.submitFiltersError').append(xhr.responseText);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    $('.submitFiltersError').append(jqXHR.responseText);
+                },
+                success: function (data, textStatus, jqXHR) {
+                    $('#tableFilter').empty();
+                    $('#tableFilter').append(data);
+                },
+            });
+
+        }
+
+
+    </script>
+    <button id="exportTable" onclick="" class="btn btn-primary">Export HTML table to CSV file</button>
+  </div>
+
+
+  <div id="tableFilter">
+      {{template "table" .}}
+  </div>
+  <script>
+      $('#exportTable').click(function () {
+          console.log("clicked on exportTable");
+          var html = $("#tableFilter").html();
+
+          export_table_to_csv(html, "table.csv");
+      });
+      function download_csv(csv, filename) {
+          var csvFile;
+          var downloadLink;
+
+          // CSV FILE
+          csvFile = new Blob([csv], {type: "text/csv"});
+
+          // Download link
+          downloadLink = document.createElement("a");
+
+          // File name
+          downloadLink.download = filename;
+
+          // We have to create a link to the file
+          downloadLink.href = window.URL.createObjectURL(csvFile);
+
+          // Make sure that the link is not displayed
+          downloadLink.style.display = "none";
+
+          // Add the link to your DOM
+          document.body.appendChild(downloadLink);
+
+          // Lanzamos
+          downloadLink.click();
+      }
+
+      function export_table_to_csv(html, filename) {
+          var csv = [];
+          var rows =  $("#tableFilter tr");
+          console.log(rows);
+          for (var i = 0; i < rows.length; i++) {
+              var row = [], cols = rows[i].find("td, th");
+
+              for (var j = 0; j < cols.length; j++)
+                  row.push(cols[j].innerText);
+
+              csv.push(row.join(","));
+          }
+
+          // Download CSV
+          download_csv(csv.join("\n"), filename);
+      }
+
+  </script>
+  </body>
+  </html>
+
+{{end}}

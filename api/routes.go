@@ -1,7 +1,6 @@
 package api
 
 import (
-	"net/http"
 	"time"
 
 	"github.com/go-chi/chi"
@@ -24,22 +23,26 @@ func (a *API) InitRouter() {
 	})
 
 	r.Use(corss.Handler)
-	r.Use(middleware.Timeout(60 * time.Second))
+	r.Use(middleware.Logger)
+	r.Use(a.ParseTemplates)
+	r.Use(middleware.Timeout(20 * time.Second))
 	r.Group(func(r chi.Router) {
-		fs := http.FileServer(http.Dir("api/templates/static"))
-		r.Handle("/static/", http.StripPrefix("/static/", fs))
-		r.Handle("/static", http.StripPrefix("/static/", fs))
-		r.Handle("/static", fs)
-		r.Handle("/", http.StripPrefix("/", fs))
-		r.Handle("/", http.StripPrefix("/static", fs))
-		r.Handle("/", http.StripPrefix("/static/", fs))
 		r.MethodFunc("GET", "/login", a.LoginHandler)
+		r.MethodFunc("GET", "/templates/*", a.ServeStatic)
 		r.MethodFunc("POST", "/login", a.SubmitLogin)
-		r.MethodFunc("POST", "/createUser/{secretToken}", a.CreateNewUser)
+
 		// Private business logic routes
 		r.Group(func(rr chi.Router) {
 			rr.Use(a.CheckAuth)
+			rr.MethodFunc("GET", "/logout", a.LogoutHandler)
+			rr.MethodFunc("GET", "/createNewUser", a.CreateNewUserTmpl)
+			rr.MethodFunc("POST", "/createUser", a.CreateNewUser)
+			rr.MethodFunc("POST", "/createApp", a.CreateNewUserApp)
+
+			rr.MethodFunc("GET", "/companies", a.ListCompanies) // with apps included
+			rr.MethodFunc("POST", "/createCompany", a.CreateNewCompany)
 			rr.MethodFunc("GET", "/", a.IndexHandler)
+			rr.MethodFunc("GET", "/filterTable", a.GetArsWithFilters)
 			rr.MethodFunc("GET", "/waverecord/{ID}", a.GetArs)
 		})
 	})

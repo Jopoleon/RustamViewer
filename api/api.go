@@ -8,6 +8,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/Jopoleon/rustamViewer/api/controllers"
+
 	"github.com/Jopoleon/rustamViewer/config"
 
 	"github.com/Jopoleon/rustamViewer/storage"
@@ -16,6 +18,7 @@ import (
 )
 
 type API struct {
+	*controllers.Controllers
 	StartTime  time.Time
 	Logger     *logrus.Logger
 	HttpPort   string
@@ -26,11 +29,13 @@ type API struct {
 
 func NewAPI(rep *storage.Storage, log *logrus.Logger, cfg *config.Config) *API {
 	a := &API{
-		HttpPort:   cfg.HttpPort,
-		StartTime:  time.Now(),
-		Config:     cfg,
-		Logger:     log,
-		Repository: rep,
+		controllers.NewControllers(rep, log, cfg),
+		time.Now(),
+		log,
+		cfg.HttpPort,
+		cfg,
+		chi.NewMux(),
+		rep,
 	}
 	a.InitRouter()
 	return a

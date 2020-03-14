@@ -1,0 +1,150 @@
+{{define "companiesList"}}
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Companies List</title>
+  </head>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.20/datatables.min.css"/>
+  <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.20/datatables.min.js"></script>
+  <script type="text/javascript" src="https://www.kryogenix.org/code/browser/sorttable/sorttable.js"></script>
+
+  <style>
+
+
+    #companies {
+      font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+      border-collapse: collapse;
+      margin: 20px;
+      padding: 10px;
+      width: 95%;
+    }
+
+    .apps {
+      font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+      border-collapse: collapse;
+      margin: 20px;
+      padding: 10px;
+      width: 60%;
+    }
+
+    #companies tr:nth-child(even) {
+      background-color: #e7f2e0;
+    }
+
+    .content {
+      height: 20px;
+    }
+
+    #companies td, #customers th {
+      border: 1px solid #ddd;
+      text-align: center;
+      word-wrap: break-word;
+      padding: 3px;
+    }
+
+    #companies th {
+      padding-top: 6px;
+      padding-bottom: 6px;
+      text-align: center;
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    label {
+      font-family: "DejaVu Sans Mono";
+      text-align: center;
+    }
+  </style>
+  {{template "menu" .User}}
+  <body>
+  <div class="container-fluid">
+    <div id="createAppError"></div>
+    <table id="companies" class="sortable">
+      <tr class="columnNames">
+        <th>Company name</th>
+        <th>Applications</th>
+      </tr>
+        {{/*      <tbody>*/}}
+        {{range .Companies}}
+          <tr>
+            <td style="font-size: 25px">
+                {{.Name}}
+            </td>
+            <td>
+              <div class="container-fluid ">
+                <div class="dropdown">
+                  <button class="btn btn-primary dropdown-toggle" type="button"
+                          id="dropdownAddNewApp" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="glyphicon glyphicon glyphicon-plus-sign"></span>
+                    Add new application
+                  </button>
+                  <div class="dropdown-menu" aria-labelledby="dropdownAddNewApp">
+                    <div class="form-group-row col-md-8">
+                      <input id="appName" class="form-control" type="text" placeholder="Name" name="AppName">
+                      <label for="appName">Application name</label>
+                    </div>
+                    <button type="button" class="btn btn-secondary" onClick="createNewApp({{.ID}})">
+                      Add
+                    </button>
+                  </div>
+
+                </div>
+                <table class="apps">
+                  <tr>
+                    <th>ID</th>
+                    <th>App name</th>
+                  </tr>
+                    {{range .Apps}}
+                      <tr>
+                        <td>{{.ID}}</td>
+                        <td>{{.ProfileName}}</td>
+                      </tr>
+                    {{end}}
+                </table>
+                <div id="createAppSuccess{{.ID}}"></div>
+              </div>
+
+            </td>
+          </tr>
+
+        {{end}}
+
+    </table>
+
+    <div class="row"></div>
+  </div>
+
+  </body>
+  <script>
+      function createNewApp(companyID) {
+          $('.createAppError').empty();
+
+          $.ajax({
+              type: "POST",
+              url: "/createApp",
+              data: JSON.stringify({
+                  profileName: $('#appName').val(),
+                  company_id: companyID,
+              }),
+              fail: function (xhr, textStatus, errorThrown) {
+                  $('.createAppError').empty();
+                  $('.createAppError').append(xhr.responseText);
+              },
+              error: function (jqXHR, textStatus, errorThrown) {
+                  $('.createAppError').empty();
+                  $('.createAppError').append(jqXHR.responseText);
+              },
+              success: function (data, textStatus, jqXHR) {
+                  $('.createAppSuccess').empty();
+                  $('.createAppSuccess').append(data);
+              },
+          });
+      }
+  </script>
+  </html>
+{{end}}

@@ -9,6 +9,11 @@ import (
 	"github.com/gorilla/securecookie"
 )
 
+const (
+	CookieAuthName = "AUTH_SESSION"
+	CookieName     = "user_session"
+)
+
 func (a *API) CheckAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -40,29 +45,25 @@ func (a *API) CheckAuth(next http.Handler) http.Handler {
 			w.Write([]byte(err.Error()))
 			return
 		}
+		//pp.Println("Middleware user: ", user)
+		ctx = context.WithValue(ctx, "userData", models.User{
+			ID:          user.ID,
+			ProfileName: user.ProfileName,
+			Login:       user.Login,
+			FirstName:   user.FirstName,
+			SecondName:  user.SecondName,
+			CompanyName: user.CompanyName,
+			AppNames:    user.AppNames,
+			Email:       user.Email,
+			IsAdmin:     user.IsAdmin,
+		})
 		ctx = context.WithValue(ctx, "email", user.Email)
 		ctx = context.WithValue(ctx, "login", user.Login)
 		ctx = context.WithValue(ctx, "userID", user.ID)
+		ctx = context.WithValue(ctx, "isAdmin", user.IsAdmin)
 		ctx = context.WithValue(ctx, "isLoggedIn", value.LoggedIn)
 		ctx = context.WithValue(ctx, "profileName", user.ProfileName)
-		http.SetCookie(w, cookie)
+		//http.SetCookie(w, cookie)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
-
 }
-
-//func (a *API) GetUserFromDb(wbID int, userEmail, userPhone string) (*models.User, error) {
-//	user, err := a.Repository.Shard(wbID).GetUserData(wbID)
-//	if err != nil {
-//		return nil, err
-//	}
-//	if user.Email == "" {
-//		err := a.Repository.Shard(wbID).CreateUser(wbID, userEmail, userPhone)
-//		if err != nil {
-//			return nil, err
-//		}
-//		user.Email = userEmail
-//		user.Phone = userPhone
-//	}
-//	return user, nil
-//}
