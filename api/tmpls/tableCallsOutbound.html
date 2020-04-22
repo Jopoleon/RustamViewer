@@ -1,0 +1,67 @@
+
+{{define "tableCallsOutbound"}}
+    <div id="tableCallsOutbound" class="container-fluid">
+        <a href="../export/callsOut" style="margin: 3px;padding:3px">
+            <button class="btn-success">Export CallsOut to CSV</button>
+        </a>
+
+    <table  class="sortable companies">
+        <tr class="columnNames">
+            <th>ID</th>
+            <th>Contact Attempt Fact Key</th>
+            <th>Contact Info</th>
+            <th>Media Type</th>
+            <th>Dialing Mode</th>
+            <th>Campaign</th>
+            <th>Call Result</th>
+            <th>Record Type</th>
+            <th>Record Status</th>
+            <th>Calling List</th>
+            <th>Contact Info Type</th>
+            <th>Time Zone</th>
+            <th>CallID</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Record ID</th>
+            <th>Chain ID</th>
+            <th>ChainN</th>
+            <th>Attempt</th>
+            <th>Daily From</th>
+            <th>Daily Till</th>
+            <th>Dial Sched Time</th>
+            <th>Project ID</th>
+            <th>Customer Data</th>
+        </tr>
+        <tbody>
+        {{range .CallsOutbound}}
+            <tr class="content">
+                <td>{{.ID}}</td>
+                <td>{{.ContactAttemptFactKey}}</td>
+                <td>{{.ContactInfo}}</td>
+                <td>{{.MediaType}}</td>
+                <td>{{.DialingMode}}</td>
+                <td>{{.Campaign}}</td>
+                <td>{{.CallResult}}</td>
+                <td>{{.RecordType}}</td>
+                <td>{{.RecordStatus}}</td>
+                <td>{{.CallingList}}</td>
+                <td>{{.ContactInfoType}}</td>
+                <td>{{.TimeZone}}</td>
+                <td>{{.Callid}}</td>
+                <td><time datetime="2014-03-26T12:48:42Z">{{.StartTime}}</time></td>
+                <td><time datetime="2014-03-26T12:48:42Z">{{.EndTime}}</time></td>
+                <td>{{.RecordID}}</td>
+                <td>{{.ChainID}}</td>
+                <td>{{.ChainN}}</td>
+                <td>{{.Attempt}}</td>
+                <td>{{.DailyFrom}}</td>
+                <td>{{.DailyTill}}</td>
+                <td>{{.DialSchedTime}}</td>
+                <td>{{.ProjectID}}</td>
+                <td>{{.CustomerData}}</td>
+            </tr>
+        {{end}}
+        </tbody>
+    </table>
+    </div>
+{{end}}

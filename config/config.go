@@ -17,6 +17,19 @@ type Config struct {
 	HttpPort         string
 	CookieSecret     string
 	CreateUserSecret string
+	FTP              FTP
+}
+
+type DB struct {
+	DBUser string
+	DBPass string
+	DBName string
+	DBHost string
+	DBPort string
+}
+
+type FTP struct {
+	FilesPath string
 }
 
 func NewConfig() *Config {
@@ -33,5 +46,6 @@ func NewConfig() *Config {
 		HttpPort:         os.Getenv("HTTP_PORT"),
 		CookieSecret:     os.Getenv("COOKIE_SECRET"),
 		CreateUserSecret: os.Getenv("CREATE_USER_SECRET"),
+		FTP:              FTP{FilesPath: os.Getenv("WAVS_PATH")},
 	}
 }

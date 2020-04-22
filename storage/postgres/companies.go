@@ -27,7 +27,12 @@ func (db *DB) GetCompanies() ([]models.Company, error) {
 	}
 	for i, c := range res {
 		var apps []models.Application
-		err = db.DB.Select(&apps, "SELECT * FROM users_apps WHERE company_id = $1;", c.ID)
+		query := `SELECT projects.id, project_name, description 
+FROM projects,project_companies
+WHERE projects.id = project_companies.project_id AND 
+project_companies.company_id = $1;
+`
+		err = db.DB.Select(&apps, query, c.ID)
 		if err != nil && err != sql.ErrNoRows {
 			db.Logger.Error(errors.WithStack(err))
 			return nil, errors.WithStack(err)

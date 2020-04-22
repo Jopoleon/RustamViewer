@@ -9,9 +9,10 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (db *DB) GetWaveRecordByID(id int) (*models.ASR, error) {
+func (db *DB) GetWaveRecordByID(id int, projectNames []string) (*models.ASR, error) {
 	res := models.ASR{}
-	err := db.DB.Get(&res, "SELECT * FROM asrresults WHERE id=$1;", id)
+	param := "{" + strings.Join(projectNames, ",") + "}"
+	err := db.DB.Get(&res, "SELECT * FROM asrresults WHERE id=$1 AND project_id = ANY($2);", id, param)
 	if err != nil {
 		db.Logger.Error(errors.WithStack(err))
 		return nil, errors.WithStack(err)
@@ -19,10 +20,21 @@ func (db *DB) GetWaveRecordByID(id int) (*models.ASR, error) {
 	return &res, nil
 }
 
-func (db *DB) GetWaveRecordByProfileNames(profileNames []string) ([]models.ASR, error) {
+func (db *DB) GetWaveRecordByCallID(callid string, projectNames []string) (*models.ASR, error) {
+	res := models.ASR{}
+	param := "{" + strings.Join(projectNames, ",") + "}"
+	err := db.DB.Get(&res, "SELECT * FROM asrresults WHERE call_id=$1 AND project_id = ANY($2);", callid, param)
+	if err != nil {
+		db.Logger.Error(errors.WithStack(err))
+		return nil, errors.WithStack(err)
+	}
+	return &res, nil
+}
+
+func (db *DB) GetWaveRecordByProfileNames(projectIDS []string) ([]models.ASR, error) {
 	res := []models.ASR{}
-	param := "{" + strings.Join(profileNames, ",") + "}"
-	err := db.DB.Select(&res, "SELECT * FROM asrresults WHERE project_id = ANY($1) LIMIT 100;", param)
+	param := "{" + strings.Join(projectIDS, ",") + "}"
+	err := db.DB.Select(&res, "SELECT * FROM asrresults WHERE project_id = ANY($1);", param)
 	if err != nil {
 		db.Logger.Error(errors.WithStack(err))
 		return nil, errors.WithStack(err)
@@ -40,33 +52,22 @@ func (db *DB) GetWaveRecordByFilters(profileName string) ([]models.ASR, error) {
 	return res, nil
 }
 
-func (db *DB) GetAllAsrResults() ([]models.ASR, error) {
-	res := []models.ASR{}
-	err := db.DB.Select(&res, "SELECT id,ani,dnis,profile,"+
-		"utterance,interpretation,confidence,created_on FROM asrresults;")
-	if err != nil {
-		db.Logger.Error(errors.WithStack(err))
-		return nil, errors.WithStack(err)
-	}
-	return res, nil
-}
-
-func (db *DB) GetAllAsrWithFilters(filters map[string][]string) ([]models.ASR, error) {
+func (db *DB) GetAllAsrWithFilters(projectIDS []string, filters map[string][]string) ([]models.ASR, error) {
 	res := []models.ASR{}
 	qq := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
-	q := qq.Select("id,ani,dnis,profile," +
-		"utterance,interpretation,confidence,created_on").From("asrresults")
+
+	ids := "{" + strings.Join(projectIDS, ",") + "}"
+
+	q := qq.Select("id, menu_name, project_id, ani, callid, " +
+		"seq, utterance, interpretation, confidence, inputmode,grammaruri,created_on").
+		From("asrresults").Where(sq.Expr("project_id = ANY(?)", ids))
 	confidence := ""
 	confidenceType := ""
 	for k, v := range filters {
 		if v[0] != "" {
 			switch {
-			case k == "ani":
-				q = q.Where(sq.Expr("ani=?", v[0]))
-			case k == "dnis":
-				q = q.Where(sq.Expr("dnis=?", v[0]))
-			case k == "profileName":
-				q = q.Where(sq.Expr("profile=?", v[0]))
+			case k == "project_id":
+				q = q.Where(sq.Expr("project_id=?", v[0]))
 			case k == "utterance":
 				q = q.Where(sq.Expr("utterance LIKE ?", "%"+v[0]+"%"))
 			case k == "confidenceType":

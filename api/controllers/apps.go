@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -9,12 +10,7 @@ import (
 )
 
 func (a *Controllers) CreateNewUserApp(w http.ResponseWriter, r *http.Request) {
-
-	user, ok := r.Context().Value("userData").(models.User)
-	if !ok || user.Login == "" {
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
-		return
-	}
+	a.UserFromContext(w, r)
 
 	b, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -33,13 +29,14 @@ func (a *Controllers) CreateNewUserApp(w http.ResponseWriter, r *http.Request) {
 	if err := app.Validate(); err != nil {
 		a.Logger.Errorf("%v", err)
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	err = a.Repository.DB.CreateNewApp(user.ID, app.CompanyID, app.ProfileName)
+	err = a.Repository.DB.CreateNewApp(app.CompanyID, app.ProjectName, app.Description)
 	if err != nil {
 		a.Logger.Errorf("%v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	w.Write([]byte(fmt.Sprintf("Проект %s добавлен.", app.ProjectName)))
 }

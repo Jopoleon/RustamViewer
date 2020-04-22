@@ -3,19 +3,15 @@
   <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <title>Companies List</title>
+    <title>Список компаний</title>
   </head>
-
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
   <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.20/datatables.min.css"/>
   <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.20/datatables.min.js"></script>
   <script type="text/javascript" src="https://www.kryogenix.org/code/browser/sorttable/sorttable.js"></script>
-
   <style>
-
-
     #companies {
       font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
       border-collapse: collapse;
@@ -62,14 +58,33 @@
   </style>
   {{template "menu" .User}}
   <body>
-  <div class="container-fluid">
-    <div id="createAppError"></div>
-    <table id="companies" class="sortable">
+  <div class="container-fluid main-container">
+    <div id="createAppError" style="font-size: 14px; color: red;border: 1px solid darkred"></div>
+    <div id="createCompany">
+      <div class="dropdown">
+        <button class="btn btn-primary dropdown-toggle" type="button"
+                id="dropdownAddNewCompany" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <span class="glyphicon glyphicon glyphicon-plus-sign"></span>
+          Добавить новую компанию
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownAddNewCompany">
+          <div class="form-group-row col-md-10">
+            <input id="companyName" class="form-control" type="text" placeholder="Name" name="companyName">
+            <label for="companyName">Название компании</label>
+          </div>
+          <button type="button" class="btn btn-secondary" onClick="createNewCompany()">
+            Добавить
+          </button>
+        </div>
+      </div>
+    </div>
+    <div id="createCompanyError"></div>
+    <div id="createCompanySuccsess"></div>
+    <table id="companies">
       <tr class="columnNames">
-        <th>Company name</th>
-        <th>Applications</th>
+        <th>Название компании</th>
+        <th>Проекты</th>
       </tr>
-        {{/*      <tbody>*/}}
         {{range .Companies}}
           <tr>
             <td style="font-size: 25px">
@@ -81,32 +96,34 @@
                   <button class="btn btn-primary dropdown-toggle" type="button"
                           id="dropdownAddNewApp" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <span class="glyphicon glyphicon glyphicon-plus-sign"></span>
-                    Add new application
+                    Добавить новый проект
                   </button>
                   <div class="dropdown-menu" aria-labelledby="dropdownAddNewApp">
                     <div class="form-group-row col-md-8">
-                      <input id="appName" class="form-control" type="text" placeholder="Name" name="AppName">
-                      <label for="appName">Application name</label>
+                      <input id="appName{{.ID}}" class="form-control" type="text" placeholder="Name" name="AppName">
+                      <label for="appName{{.ID}}">Название проекта</label>
                     </div>
                     <button type="button" class="btn btn-secondary" onClick="createNewApp({{.ID}})">
-                      Add
+                      Добавить
                     </button>
                   </div>
 
                 </div>
-                <table class="apps">
-                  <tr>
-                    <th>ID</th>
-                    <th>App name</th>
-                  </tr>
-                    {{range .Apps}}
-                      <tr>
-                        <td>{{.ID}}</td>
-                        <td>{{.ProfileName}}</td>
-                      </tr>
-                    {{end}}
-                </table>
-                <div id="createAppSuccess{{.ID}}"></div>
+                <div class="container-fluid justify-content-center">
+                  <table class="apps">
+                    <tr>
+                      <th>ID</th>
+                      <th>Название проекта</th>
+                    </tr>
+                      {{range .Apps}}
+                        <tr>
+                          <td>{{.ID}}</td>
+                          <td>{{.ProjectName}}</td>
+                        </tr>
+                      {{end}}
+                  </table>
+                </div>
+                <div id="createAppSuccess" style="font-size:14px; color: darkgreen; border: 1px solid green"></div>
               </div>
 
             </td>
@@ -121,27 +138,73 @@
 
   </body>
   <script>
+      $('#createAppSuccess').hide();
+      $('#createAppError').hide();
+
       function createNewApp(companyID) {
-          $('.createAppError').empty();
+          var errorDiv = $('#createAppError');
+          errorDiv.empty();
+
 
           $.ajax({
               type: "POST",
-              url: "/createApp",
+              url: "/project",
               data: JSON.stringify({
-                  profileName: $('#appName').val(),
+                  //project_id: $('#appName'+companyID).val(),
+                  project_name: $('#appName'+companyID).val(),
                   company_id: companyID,
               }),
               fail: function (xhr, textStatus, errorThrown) {
-                  $('.createAppError').empty();
-                  $('.createAppError').append(xhr.responseText);
+                  errorDiv.empty();
+                  errorDiv.show();
+                  errorDiv.append(xhr.responseText);
               },
               error: function (jqXHR, textStatus, errorThrown) {
-                  $('.createAppError').empty();
-                  $('.createAppError').append(jqXHR.responseText);
+                  errorDiv.empty();
+                  errorDiv.show();
+                  errorDiv.append(jqXHR.responseText);
               },
               success: function (data, textStatus, jqXHR) {
-                  $('.createAppSuccess').empty();
-                  $('.createAppSuccess').append(data);
+                  $('#createAppSuccess').empty();
+                  $('#createAppSuccess').show();
+                  $('#createAppSuccess').append(data);
+
+                  // location.reload();
+              },
+          });
+      }
+
+      function createNewCompany() {
+          var errorDiv = $('#createCompanyError');
+          var succsessDiv = $('#createCompanySuccsess');
+          errorDiv.hide();
+          errorDiv.empty();
+          succsessDiv.hide();
+          succsessDiv.empty();
+
+
+          $.ajax({
+              type: "POST",
+              url: "/company",
+              data: JSON.stringify({
+                  name: $('#companyName').val(),
+
+              }),
+              fail: function (xhr, textStatus, errorThrown) {
+                  errorDiv.empty();
+                  errorDiv.show();
+                  errorDiv.append(xhr.responseText);
+              },
+              error: function (jqXHR, textStatus, errorThrown) {
+                  errorDiv.empty();
+                  errorDiv.show();
+                  errorDiv.append(jqXHR.responseText);
+              },
+              success: function (data, textStatus, jqXHR) {
+                  succsessDiv.empty();
+                  succsessDiv.show();
+                  succsessDiv.append(data);
+
               },
           });
       }

@@ -1,39 +1,43 @@
-
 {{define "tableASR"}}
-    <table id="companies" class="sortable">
-        <tr class="columnNames">
-            <th>MenuName</th>
-            <th>ProjectID</th>
-            <th>Ani</th>
-            <th>CallID</th>
-            <th>Seq</th>
-            <th>Utterance</th>
-            <th>Interpretation</th>
-            <th>Confidence</th>
-            <th>Inputmode</th>
-            <th>CreatedOn</th>
+  <div id="tableASR" class="container-fluid">
+    <a href="../export/ars" style="margin: 3px;padding:3px">
+      <button class="btn-success">Export ARS to CSV</button>
+    </a>
+    <table data-sortable data-sortable-initialized="true" class="companies">
+      <tr class="columnNames">
+        <th>Menu Name</th>
+        <th>ProjectID</th>
+        <th>Ani</th>
+        <th>CallID</th>
+        <th>Seq</th>
+        <th>Utterance</th>
+        <th>Interpretation</th>
+        <th>Confidence</th>
+        <th>Input Mode</th>
+        <th>Audio</th>
+      </tr>
+      <tbody>
+      {{range .Ars}}
+        <tr class="content">
+          <td>{{.MenuName}}</td>
+          <td>{{.ProjectID}}</td>
+          <td>{{.Ani}}</td>
+          <td>{{.CallID}}</td>
+          <td>{{.Seq}}</td>
+          <td>{{.Utterance}}</td>
+          <td>{{.Interpretation}}</td>
+          <td>{{.Confidence}}</td>
+          <td>{{.Inputmode}}</td>
+          <td class="audioWav">
+            <audio controls preload="none" class="audioPlayer">
+              <source src="/waverecord/{{.ID}}" type="audio/wav">
+              Your browser does not support the audio element.
+            </audio>
+          </td>
         </tr>
-        <tbody>
-        {{range .Ars}}
-            <tr class="content">
-                <td>{{.MenuName}}</td>
-                <td>{{.ProjectID}}</td>
-                <td>{{.Ani}}</td>
-                <td>{{.CallID}}</td>
-                <td>{{.Seq}}</td>
-                <td>{{.Utterance}}</td>
-                <td>{{.Interpretation}}</td>
-                <td>{{.Confidence}}</td>
-                <td>{{.Inputmode}}</td>
-                <td class="audioWav">
-                    <audio controls preload="none" class="audioPlayer">
-                        <source src="/waverecord/{{.ID}}" type="audio/wav">
-                        Your browser does not support the audio element.
-                    </audio>
-                </td>
-                <td>{{.CreatedOn}}</td>
-            </tr>
-        {{end}}
-        </tbody>
+      {{end}}
+      </tbody>
     </table>
+  </div>
+
 {{end}}

@@ -20,6 +20,7 @@ func (a *API) CheckAuth(next http.Handler) http.Handler {
 		cookie, err := r.Cookie(CookieName)
 		if err != nil {
 			if err == http.ErrNoCookie {
+				a.Logger.Errorf("%v", err)
 				http.Redirect(w, r, "/login", http.StatusSeeOther)
 				return
 			}
@@ -45,25 +46,29 @@ func (a *API) CheckAuth(next http.Handler) http.Handler {
 			w.Write([]byte(err.Error()))
 			return
 		}
-		//pp.Println("Middleware user: ", user)
 		ctx = context.WithValue(ctx, "userData", models.User{
 			ID:          user.ID,
-			ProfileName: user.ProfileName,
 			Login:       user.Login,
 			FirstName:   user.FirstName,
 			SecondName:  user.SecondName,
 			CompanyName: user.CompanyName,
+			CompanyID:   user.CompanyID,
 			AppNames:    user.AppNames,
 			Email:       user.Email,
 			IsAdmin:     user.IsAdmin,
 		})
-		ctx = context.WithValue(ctx, "email", user.Email)
-		ctx = context.WithValue(ctx, "login", user.Login)
-		ctx = context.WithValue(ctx, "userID", user.ID)
-		ctx = context.WithValue(ctx, "isAdmin", user.IsAdmin)
-		ctx = context.WithValue(ctx, "isLoggedIn", value.LoggedIn)
-		ctx = context.WithValue(ctx, "profileName", user.ProfileName)
-		//http.SetCookie(w, cookie)
 		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+func (a *API) AdminOnly(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		user := a.Controllers.UserFromContext(w, r)
+		if !user.IsAdmin {
+			http.Error(w, "only admin allowed", http.StatusUnauthorized)
+			return
+		}
+		next.ServeHTTP(w, r)
 	})
 }

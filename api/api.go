@@ -40,6 +40,7 @@ func NewAPI(rep *storage.Storage, log *logrus.Logger, cfg *config.Config) *API {
 	a.InitRouter()
 	return a
 }
+
 func ServeAPI(api *API) {
 
 	s := &http.Server{

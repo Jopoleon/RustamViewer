@@ -1,10 +1,44 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{{define "tableVars"}}
+  <div id="tableVARS" class="container-fluid">
+    <a href="../export/vars" style="margin: 3px;padding:3px">
+      <button class="btn-success">Export Vars to CSV</button>
+    </a>
 
-</body>
-</html>
+    <table class="sortable companies">
+      <tr class="columnNames">
+        <th>ID</th>
+        <th>ExternalID</th>
+        <th>Menu Name</th>
+        <th>ProjectID</th>
+        <th>ANI</th>
+        <th>CallID</th>
+        <th>Seq</th>
+        <th>Action Status</th>
+        <th>Action Description</th>
+        <th>Enter Menu Name</th>
+        <th>Leave Menu Time</th>
+        <th>Action Time</th>
+        <th>CreatedOn</th>
+      </tr>
+      <tbody>
+      {{range .Vars}}
+        <tr class="content">
+          <td>{{.ID}}</td>
+          <td>{{.ExternalID}}</td>
+          <td>{{.MenuName}}</td>
+          <td>{{.ProjectID}}</td>
+          <td>{{.ANI}}</td>
+          <td>{{.CallID}}</td>
+          <td>{{.Seq}}</td>
+          <td>{{.ActionStatus}}</td>
+          <td>{{.ActionDescription}}</td>
+          <td>{{.EnterMenuName}}</td>
+          <td>{{.LeaveMenuTime}}</td>
+          <td>{{.ActionTime}}</td>
+          <td>{{.CreatedOn}}</td>
+        </tr>
+      {{end}}
+      </tbody>
+    </table>
+  </div>
+{{end}}

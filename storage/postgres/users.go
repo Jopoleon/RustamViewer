@@ -13,9 +13,28 @@ func (db *DB) CreateUser(user models.User) error {
 		db.Logger.Error(errors.WithStack(err))
 		return errors.WithStack(err)
 	}
-	_, err = db.DB.Exec("INSERT INTO users (login, email, password, profile_name, is_admin, first_name, second_name, company_name) VALUES ($1, $2, $3, $4, $5, $6, $7, $8);",
-		user.Login, user.Email, string(bpas), "", user.IsAdmin, user.FirstName,
-		user.SecondName, user.CompanyName)
+	q := `INSERT INTO users 
+    (login, email, password, is_admin, first_name, second_name, company_name, company_id) 
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8);`
+	_, err = db.DB.Exec(q,
+		user.Login, user.Email, string(bpas), false, user.FirstName,
+		user.SecondName, user.CompanyName, user.CompanyID)
+	if err != nil {
+		db.Logger.Error(errors.WithStack(err))
+		return errors.WithStack(err)
+	}
+	return nil
+}
+
+func (db *DB) UpdateUser(user *models.User) error {
+
+	bpas, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		db.Logger.Error(errors.WithStack(err))
+		return errors.WithStack(err)
+	}
+	_, err = db.DB.Exec("UPDATE users SET password = $1, first_name = $2, second_name=$3 WHERE id = $4;",
+		bpas, user.FirstName, user.SecondName, user.ID)
 	if err != nil {
 		db.Logger.Error(errors.WithStack(err))
 		return errors.WithStack(err)
@@ -24,38 +43,77 @@ func (db *DB) CreateUser(user models.User) error {
 }
 
 func (db *DB) GetUserByID(id int) (*models.User, error) {
-	res := models.User{}
-	err := db.DB.Get(&res, "SELECT * FROM users WHERE id=$1 LIMIT 1;", id)
+	user := models.User{}
+	err := db.DB.Get(&user, "SELECT * FROM users WHERE id=$1 LIMIT 1;", id)
 	if err != nil {
 		db.Logger.Error(errors.WithStack(err))
 		return nil, errors.WithStack(err)
 	}
-	var apps []string
-	err = db.DB.Select(&apps, "SELECT profile_name FROM users_apps "+
-		"WHERE user_id=$1;", res.ID)
+	var apps []models.Application
+	q := `SELECT projects.id, project_name, description
+    			FROM projects,users_projects
+    			WHERE projects.id = users_projects.project_id AND
+           			users_projects.user_id = $1;`
+	err = db.DB.Select(&apps, q, user.ID)
 	if err != nil {
 		db.Logger.Error(errors.WithStack(err))
 		return nil, errors.WithStack(err)
 	}
-	res.AppNames = apps
-	return &res, nil
+	user.Apps = apps
+	for _, a := range apps {
+		user.AppNames = append(user.AppNames, a.ProjectName)
+	}
+	return &user, nil
+}
+
+func (db *DB) GetAllUsers() ([]models.User, error) {
+	res := []models.User{}
+	err := db.DB.Select(&res, "SELECT * FROM users;")
+	if err != nil {
+		db.Logger.Error(errors.WithStack(err))
+		return nil, errors.WithStack(err)
+	}
+	return res, nil
 }
 
 func (db *DB) GetUserByEmailOrLogin(email string) (*models.User, error) {
-	res := models.User{}
-	err := db.DB.Get(&res, "SELECT * FROM users WHERE email=$1 OR login=$1;", email)
+	user := models.User{}
+	err := db.DB.Get(&user, "SELECT * FROM users WHERE email=$1 OR login=$1;", email)
 	if err != nil {
 		db.Logger.Error(errors.WithStack(err))
 		return nil, errors.WithStack(err)
 	}
 
-	var apps []string
-	err = db.DB.Select(&apps, "SELECT profile_name FROM users_apps "+
-		"WHERE user_id=$1;", res.ID)
+	var apps []models.Application
+	q := `SELECT projects.id, project_name, description
+    			FROM projects,users_projects
+    			WHERE projects.id = users_projects.project_id AND
+           			users_projects.user_id = $1;`
+	err = db.DB.Select(&apps, q, user.ID)
 	if err != nil {
 		db.Logger.Error(errors.WithStack(err))
 		return nil, errors.WithStack(err)
 	}
-	res.AppNames = apps
-	return &res, nil
+	user.Apps = apps
+	for _, a := range apps {
+		user.AppNames = append(user.AppNames, a.ProjectName)
+	}
+
+	return &user, nil
+}
+
+func (db *DB) AddUserToApp(projectID int, userID int) error {
+	query := `INSERT INTO users_projects (user_id, project_id)
+	SELECT $1, $2
+	WHERE NOT EXISTS (
+		SELECT (user_id, project_id) FROM users_projects WHERE 
+		user_id = $1 AND 
+		project_id = $2);`
+
+	_, err := db.DB.Exec(query, userID, projectID)
+	if err != nil {
+		db.Logger.Error(errors.WithStack(err))
+		return errors.WithStack(err)
+	}
+	return nil
 }

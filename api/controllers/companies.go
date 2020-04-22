@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 
@@ -8,30 +9,39 @@ import (
 )
 
 func (a *Controllers) CreateNewCompany(w http.ResponseWriter, r *http.Request) {
-	IsAdmin := r.Context().Value("isAdmin").(bool)
-	if !IsAdmin {
-		http.Error(w, "not admin", http.StatusUnauthorized)
-		return
-	}
+
 	b, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		a.Logger.Errorf("%v", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	_ = b
+	c := models.Company{}
+	defer r.Body.Close()
+	err = json.Unmarshal(b, &c)
+	if err != nil {
+		a.Logger.Errorf("%v", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	err = c.Validate()
+	if err != nil {
+		a.Logger.Errorf("%v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	err = a.Repository.DB.CreateNewCompany(c.Name)
+	if err != nil {
+		a.Logger.Errorf("%v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }
 
 func (a *Controllers) ListCompanies(w http.ResponseWriter, r *http.Request) {
-	user, ok := r.Context().Value("userData").(models.User)
-	if !ok || user.Login == "" {
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
-		return
-	}
-	if !user.IsAdmin {
-		http.Error(w, "not admin", http.StatusUnauthorized)
-		return
-	}
+
+	user := a.UserFromContext(w, r)
+
 	comps, err := a.Repository.DB.GetCompanies()
 	if err != nil {
 		a.Logger.Errorf("%v", err)

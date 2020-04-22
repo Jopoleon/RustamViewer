@@ -1,0 +1,33 @@
+{{define "menu"}}
+  <nav class="navbar navbar-light navbar-expand-xl" style="background-color: #e3f2fd;">
+    <a class="navbar-brand" href="#">
+      <img src="../templates/static/images/logo.svg" width="25" height="25" class="d-inline-block align-top" alt="">
+    </a>
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="/">FORTECOM</a>
+      </div>
+      <ul class="nav navbar-nav">
+        <li class="active"><a href="/">Таблица записей</a></li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="/user">
+                <span class="glyphicon glyphicon glyphicon glyphicon-user">
+                </span> Информация о пользователе </a></li>
+          {{if .IsAdmin}}
+            <li><a href=""><span class="glyphicon glyphicon-tower"></span> Привет, Админ {{.Login}} </a></li>
+            <li><a href="/createUser">
+              <span class="glyphicon glyphicon-plus-sign">
+              </span> Создать нового пользователя</a></li>
+            <li><a href="/companies">
+              <span class="glyphicon glyphicon glyphicon-th-list">
+              </span> Список компаний </a></li>
+            <li><a href="/projects">
+              <span class="glyphicon glyphicon glyphicon-th-list">
+              </span> Список проектов </a></li>
+          {{end}}
+        <li><a href="/logout"><span class="glyphicon glyphicon-log-in"></span> Выйти </a></li>
+      </ul>
+    </div>
+  </nav>
+{{end}}

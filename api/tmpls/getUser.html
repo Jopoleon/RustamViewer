@@ -1,0 +1,114 @@
+{{define "getUser"}}
+
+
+  <!doctype html>
+  <html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script src="static/css/login.css" type="text/css"></script>
+    <title>Registration</title>
+    <style>
+      .form-label-group {
+        margin: 20px;
+      }
+    </style>
+  </head>
+  {{template "menu" .User}}
+  <body>
+  <div class="container">
+    <div class="row center-block">
+      <div class="card card-signin center-block" style="margin-top: 20%">
+        <div class="card-body center-block" style="width: 50%">
+          <h5 class="card-title text-center">Register new user</h5>
+          <form class="form-signin">
+            <div class="form-label-group">
+              <label>Login: {{.Login}}</label>
+              <br>
+
+            </div>
+
+            <div class="form-label-group">
+
+              <label for="firstName">First Name: {{.FirstName}}</label>
+              <br>
+            </div>
+
+
+            <div class="form-label-group">
+              <label>Second Name: {{.SecondName}}</label>
+              <br>
+            </div>
+
+            <div class="form-label-group">
+              <label>Company Name: {{.CompanyName}}</label>
+              <br>
+            </div>
+
+            <div class="form-label-group">
+              <label>Email: {{.Email}}</label>
+              <br>
+            </div>
+
+
+            <div class="form-label-group">
+              <label for="inputPassword">To change password, <a href="">go here</a></label>
+            </div>
+          </form>
+          <button style="max-width: 250px" class="btn btn-lg btn-primary btn-block center-block text-uppercase"
+                  onclick="sendNewUserCreds()"> Create User
+          </button>
+
+          <div class="center-block">
+            <p class="sendCredsErrors center-block"
+               style="font-size: 18px; color: #ea4335; text-align: center"></p>
+            <p class="sendCredsSuccsess center-block"
+               style="font-size: 18px; color: #3cea43; text-align: center"></p>
+          </div>
+          <script>
+              function sendNewUserCreds() {
+                  $('.sendCredsErrors').empty();
+
+                  $.ajax({
+                      type: "POST",
+                      url: "/createUser",
+                      data: JSON.stringify({
+                          firstName: $('#firstName').val(),
+                          secondName: $('#secondName').val(),
+                          companyName: $('#companyName').val(),
+                          email: $('#onlyEmail').val(),
+                          password: $('#inputPassword').val(),
+                          login: $('#inputLogin').val(),
+                      }),
+                      fail: function (xhr, textStatus, errorThrown) {
+                          $('.sendCredsErrors').empty();
+                          $('.sendCredsErrors').append(xhr.responseText);
+                      },
+                      error: function (jqXHR, textStatus, errorThrown) {
+                          $('.sendCredsErrors').empty();
+                          $('.sendCredsErrors').append(jqXHR.responseText);
+                      },
+                      success: function (data, textStatus, jqXHR) {
+                          $('.sendCredsSuccsess').empty();
+                          $('.sendCredsSuccsess').append(data);
+                      },
+                  });
+              }
+          </script>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  </body>
+  </html>
+
+{{end}}

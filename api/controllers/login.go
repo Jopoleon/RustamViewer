@@ -13,34 +13,25 @@ import (
 )
 
 func (a *Controllers) LoginHandler(w http.ResponseWriter, r *http.Request) {
-	isLogged := r.Context().Value("isLoggedIn")
-	switch isLogged.(type) {
-	case bool:
-		if isLogged.(bool) == true {
-			http.Redirect(w, r, "/", http.StatusSeeOther)
-		}
-	case nil:
+	_, ok := r.Context().Value("userData").(models.User)
+	if ok {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
 	}
-
 	err := Templates.ExecuteTemplate(w, "login", nil)
 	if err != nil {
+		a.Logger.Errorf("%v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	Templates.Execute(w, nil)
 
 }
 
 func (a *Controllers) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 
-	userID := r.Context().Value("userID")
-	if userID == nil {
-		a.Logger.Errorf("Logout handler error: empty userID or isLogged fields")
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
+	user := a.UserFromContext(w, r)
 
-	errA := a.Repository.DB.DeleteUserSession((userID).(int))
+	errA := a.Repository.DB.DeleteUserSession(user.ID)
 	if errA != nil {
 		a.Logger.Errorf("%v", errA)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -68,12 +59,16 @@ func (a *Controllers) SubmitLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if cred.Email == "" {
-		//a.Logger.Errorf("%v", err)
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("Invalid email or login"))
 		return
 	}
-
+	//bpas, err := bcrypt.GenerateFromPassword([]byte(cred.Password), bcrypt.DefaultCost)
+	//if err != nil {
+	//	a.Logger.Error(errors.WithStack(err))
+	//	//return errors.WithStack(err)
+	//}
+	//pp.Println(string(bpas))
 	user, err := a.Repository.DB.GetUserByEmailOrLogin(cred.Email)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -108,11 +103,11 @@ func (a *Controllers) SubmitLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	cookie := http.Cookie{
-		Name:     CookieName,
-		Value:    encoded,
-		Path:     "/",
-		MaxAge:   CookieMaxAge,
-		HttpOnly: true,
+		Name:   CookieName,
+		Value:  encoded,
+		Path:   "/",
+		MaxAge: CookieMaxAge,
+		//HttpOnly: true,
 	}
 
 	errA := a.Repository.DB.SetUserSession(user.ID, cookie.Value)
@@ -123,5 +118,19 @@ func (a *Controllers) SubmitLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.SetCookie(w, &cookie)
+	err = json.NewEncoder(w).Encode(struct {
+		FirstName  string `json:"first_name"`
+		SecondName string `json:"second_name"`
+		IsAdmin    bool   `json:"is_admin"`
+	}{
+		FirstName:  user.FirstName,
+		SecondName: user.SecondName,
+		IsAdmin:    user.IsAdmin,
+	})
+	if err != nil {
+		a.Logger.Errorf("%v", errA)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 	return
 }

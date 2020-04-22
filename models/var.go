@@ -1,7 +1,5 @@
 package models
 
-import "time"
-
 //create table var
 //(
 //	id serial not null
@@ -22,17 +20,17 @@ import "time"
 //);
 //
 type VAR struct {
-	ID                int       `json:"id" db:"id"`
-	ExternalID        int       `json:"external_id" db:"external_id"`
-	MenuName          string    `json:"menu_name" db:"menu_name"`
-	ProjectID         string    `json:"project_id" db:"project_id"`
-	ANI               string    `json:"ani" db:"ani"`
-	CallID            string    `json:"callid" db:"callid"`
-	Seq               int       `json:"seq" db:"seq"`
-	ActionStatus      string    `json:"action_status" db:"action_status"`
-	ActionDescription string    `json:"action_description" db:"action_description"`
-	EnterMenuName     time.Time `json:"enter_menu_time" db:"enter_menu_time"`
-	LeaveMenuTime     time.Time `json:"leave_menu_time" db:"leave_menu_time"`
-	ActionTime        time.Time `json:"action_time" db:"action_time"`
-	CreatedOn         time.Time `json:"created_on" db:"created_on"`
+	ID                int     `json:"id" db:"id"`
+	ExternalID        *string `json:"external_id" db:"external_id"`
+	MenuName          *string `json:"menu_name" db:"menu_name"`
+	ProjectID         *string `json:"project_id" db:"project_id"`
+	ANI               *string `json:"ani" db:"ani"`
+	CallID            *string `json:"callid" db:"callid"`
+	Seq               *string `json:"seq" db:"seq"`
+	ActionStatus      *string `json:"action_status" db:"action_status"`
+	ActionDescription *string `json:"action_description" db:"action_description"`
+	EnterMenuName     MyTime  `json:"enter_menu_time" db:"enter_menu_time"`
+	LeaveMenuTime     MyTime  `json:"leave_menu_time" db:"leave_menu_time"`
+	ActionTime        MyTime  `json:"action_time" db:"action_time"`
+	CreatedOn         MyTime  `json:"created_on" db:"created_on"`
 }

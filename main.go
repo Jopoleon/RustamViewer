@@ -23,5 +23,4 @@ func main() {
 		logrus.Fatal(err)
 	}
 	a.Run()
-
 }

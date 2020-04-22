@@ -1,0 +1,167 @@
+{{define "addUserToProject"}}
+
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Проекты и пользователи</title>
+  </head>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.20/datatables.min.css"/>
+  <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.20/datatables.min.js"></script>
+  <script type="text/javascript" src="https://www.kryogenix.org/code/browser/sorttable/sorttable.js"></script>
+  <style>
+    #projects {
+      font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+      border-collapse: collapse;
+      margin: 20px;
+      padding: 10px;
+      width: 95%;
+    }
+
+    .apps {
+      font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+      border-collapse: collapse;
+      margin: 20px;
+      padding: 10px;
+      width: 60%;
+    }
+
+    #projects tr:nth-child(even) {
+      background-color: #e7f2e0;
+    }
+
+    .content {
+      height: 20px;
+    }
+
+    #projects td, #customers th {
+      border: 1px solid #ddd;
+      text-align: center;
+      word-wrap: break-word;
+      padding: 3px;
+    }
+
+    #projects th {
+      padding-top: 6px;
+      padding-bottom: 6px;
+      text-align: center;
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    label {
+      font-family: "DejaVu Sans Mono";
+      text-align: center;
+    }
+  </style>
+  {{template "menu" .User}}
+  <body>
+  <script>
+
+  </script>
+  {{ $apps := .Apps }}
+  {{ $userList := .UserList }}
+  <div class="container-fluid">
+    <div id="addUserError" style="font-weight: bold; font-size: 18px;color: red"></div>
+    <div id="createAppSuccess" style="font-weight: bold; font-size: 18px;color: green"></div>
+    <table id="projects" >
+      <tr class="columnNames">
+        <th>Имя проекта</th>
+        <th>Пользователи</th>
+      </tr>
+        {{range $app := $apps}}
+          <tr>
+            <td style="font-size: 25px">
+                {{$app.ProjectName}}
+              <p style="font-size: 12px">компания: {{$app.CompanyName}}</p>
+            </td>
+            <td>
+              <div class="container-fluid">
+                <div class="row">
+                  <div class="col-md-3" style="margin: 10px">
+                    <button class="btn btn-primary dropdown-toggle" type="button"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                            onclick="addUserToApplication('{{$app.ID}}', '{{$app.ProjectName}}')">
+                      <span class="glyphicon glyphicon glyphicon-plus-sign"></span>
+                      Добавить пользователя
+                    </button>
+                    <div style="margin: 4px; padding: 4px">
+                      <label for="selectedUser{{$app.ID}}"> Выбор пользователя: </label>
+                      <select id="selectedUser{{$app.ID}}" class="form-control form-control-sm">
+                        <option selected>Выбрать пользователя</option>
+                          {{range $user := $userList}}
+                              {{if eq $user.CompanyID $app.CompanyID }}
+                                <option value="{{$user.ID}}">{{$user.FirstName}} {{$user.SecondName}} ({{$user.Login}})</option>
+                              {{end}}
+                          {{end}}
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <p style="font-size:14px"></p>
+                    <ul class="list-group d-flex flex-row flex-wrap">
+                        {{range $appUser :=  $app.AppUsers}}
+                          <li class="list-group-item"> {{$appUser.FirstName}} {{$appUser.SecondName}} ({{$appUser.Login}})</li>
+                        {{end}}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+        {{end}}
+    </table>
+    <script>
+        $(document).ready(function () {
+            $('#addUserError').hide();
+            $('#createAppSuccess').hide();
+        })
+
+
+        function addUserToApplication(projectID, projectName) {
+
+            var errorDiv = $('#addUserError');
+            errorDiv.empty();
+            errorDiv.hide();
+
+            var userID = $('#selectedUser' + projectID).val();
+            if (userID === 'Выбрать пользователя') {
+                errorDiv.empty();
+                errorDiv.show();
+                errorDiv.append("Выберите пользователя!");
+                return
+            }
+            $.ajax({
+                type: "POST",
+                url: "/projects/" + userID,
+                data: JSON.stringify({
+                    project_id: parseInt(projectID),
+                    project_name: projectName,
+                    user_id: parseInt(userID),
+                    user_full_name: $('#selectedUser' + projectID + " option:selected").text()
+                }),
+                fail: function (xhr, textStatus, errorThrown) {
+                    errorDiv.empty();
+                    errorDiv.show();
+                    errorDiv.append(xhr.responseText);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    errorDiv.empty();
+                    errorDiv.show();
+                    errorDiv.append(jqXHR.responseText);
+                },
+                success: function (data, textStatus, jqXHR) {
+                    $('#createAppSuccess').empty();
+                    $('#createAppSuccess').show();
+                    $('#createAppSuccess').append(data);
+                },
+            });
+        }
+    </script>
+  </div>
+
+  </body>
+  </html>
+{{end}}

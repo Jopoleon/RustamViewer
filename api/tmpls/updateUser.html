@@ -1,0 +1,106 @@
+{{define "updateUser"}}
+  <!doctype html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script src="static/css/login.css" type="text/css"></script>
+    <title>Информация о пользователе</title>
+    <style>
+      .form-label-group {
+        margin: 20px;
+      }
+    </style>
+  </head>
+  {{template "menu" .User}}
+  <body>
+  <div class="container">
+    <div class="row left-block">
+      <div class="card card-signin left-block">
+        <div class="card-body center-block" style="width: 50%">
+            {{with .User}}
+              <ul class="list-group">
+                <li class="list-group-item"> Логин: <strong>{{.Login}}</strong></li>
+                <li class="list-group-item"> Имя: <strong>{{.FirstName}}</strong></li>
+                <li class="list-group-item"> Фамилия: <strong>{{.SecondName}}</strong></li>
+                <li class="list-group-item"> Ваши проекты:<strong> {{range .AppNames}}{{.}}, {{end}}</strong></li>
+                <li class="list-group-item"> Имя Компании: <strong>{{.CompanyName}}</strong></li>
+                <li class="list-group-item"> ID Компании: <strong>{{.CompanyID}}</strong></li>
+                <li class="list-group-item"> Ваш Email: <strong>{{.Email}}</strong></li>
+                <li class="list-group-item"> Вы админ? : <strong>{{.IsAdmin}}</strong></li>
+              </ul>
+              <h3 class="card-title text-center"> Изменить данные о пользователе</h3>
+              <form class="form-signin">
+                <div class="form-label-group">
+                  <p>Текущее имя: {{.FirstName}}</p>
+                  <input id="firstName" class="form-control" name="firstName"
+                         required autofocus>
+                  <label for="firstName">Новое имя</label>
+                  <br>
+                </div>
+                <div class="form-label-group">
+                  <p>Текущая фамилия: {{.SecondName}}</p>
+                  <input id="secondName" class="form-control" name="secondName"
+                         required autofocus>
+                  <label for="secondName">Новая фамилия</label>
+                  <br>
+                </div>
+                <div class="form-label-group">
+                  <input type="password" id="inputPassword" name="password"
+                         class="form-control" placeholder="Password" required>
+                  <label for="inputPassword">Новый пароль (не менее 6 символов)</label>
+                </div>
+              </form>
+            {{end}}
+          <button style="max-width: 250px" class="btn btn-lg btn-primary btn-block center-block text-uppercase"
+                  onclick="sendNewUserCreds()">Обновить
+          </button>
+
+          <div class="center-block">
+            <p class="sendCredsErrors center-block"
+               style="font-size: 18px; color: #ea4335; text-align: center"></p>
+            <p class="sendCredsSuccsess center-block"
+               style="font-size: 18px; color: #3cea43; text-align: center"></p>
+          </div>
+          <script>
+              function sendNewUserCreds() {
+                  $('.sendCredsErrors').empty();
+                  $.ajax({
+                      type: "PUT",
+                      url: "/user",
+                      data: JSON.stringify({
+                          firstName: $('#firstName').val(),
+                          secondName: $('#secondName').val(),
+                          password: $('#inputPassword').val(),
+                      }),
+                      fail: function (xhr, textStatus, errorThrown) {
+                          $('.sendCredsErrors').empty();
+                          $('.sendCredsErrors').append(xhr.responseText);
+                      },
+                      error: function (jqXHR, textStatus, errorThrown) {
+                          $('.sendCredsErrors').empty();
+                          $('.sendCredsErrors').append(jqXHR.responseText);
+                      },
+                      success: function (data, textStatus, jqXHR) {
+                          $('.sendCredsSuccsess').empty();
+                          $('.sendCredsSuccsess').append(data);
+                      },
+                  });
+              }
+          </script>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  </body>
+  </html>
+
+{{end}}

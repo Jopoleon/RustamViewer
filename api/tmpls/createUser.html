@@ -15,7 +15,7 @@
     <!-- Latest compiled JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
     <script src="static/css/login.css" type="text/css"></script>
-    <title>Registration</title>
+    <title>Регистрация</title>
     <style>
       .form-label-group {
         margin: 20px;
@@ -26,96 +26,116 @@
   <body>
   <div class="container">
     <div class="row center-block">
-      <div class="card card-signin center-block" style="margin-top: 20%">
-        <div class="card-body center-block" style="width: 50%">
-          <h5 class="card-title text-center">Register new user</h5>
-          <form class="form-signin">
-            <div class="form-label-group">
-              <input id="inputLogin" class="form-control" name="login"
-                     required autofocus>
-              <label for="inputLogin">Login</label>
-              <br>
-
-            </div>
-
-            <div class="form-label-group">
-              <input id="firstName" class="form-control" name="firstName"
-                     required autofocus>
-              <label for="firstName">First Name</label>
-              <br>
-            </div>
-
-
-            <div class="form-label-group">
-              <input id="secondName" class="form-control" name="secondName"
-                     required autofocus>
-              <label for="secondName">Second Name</label>
-              <br>
-            </div>
-
-            <div class="form-label-group">
-              <input id="companyName" class="form-control" name="companyName"
-                     required autofocus>
-              <label for="companyName">Company Name</label>
-              <br>
-            </div>
-
-            <div class="form-label-group">
-              <input id="onlyEmail" class="form-control" name="email"
-                     required autofocus>
-              <label for="onlyEmail">Email</label>
-              <br>
-            </div>
-
-
-            <div class="form-label-group">
-              <input type="password" id="inputPassword" name="password"
-                     class="form-control" placeholder="Password" required>
-              <label for="inputPassword">Password</label>
-            </div>
-          </form>
-          <button style="max-width: 250px" class="btn btn-lg btn-primary btn-block center-block text-uppercase" onclick="sendNewUserCreds()"> Create User</button>
-
-          <div class="center-block">
-            <p class="sendCredsErrors center-block"
-               style="font-size: 18px; color: #ea4335; text-align: center"></p>
-            <p class="sendCredsSuccsess center-block"
-               style="font-size: 18px; color: #3cea43; text-align: center"></p>
+      <div class="card-body center-block" style="width: 50%">
+        <h5 class="card-title text-center">Register new user</h5>
+        <form class="form-signin">
+          <div class="form-label-group">
+            <label for="inputLogin">Логин</label>
+            <input id="inputLogin" class="form-control" name="login"
+                   required autofocus>
+            <br>
           </div>
-          <script>
-              function sendNewUserCreds() {
-                  $('.sendCredsErrors').empty();
 
-                  $.ajax({
-                      type: "POST",
-                      url: "/createUser",
-                      data: JSON.stringify({
-                          firstName: $('#firstName').val(),
-                          secondName: $('#secondName').val(),
-                          companyName: $('#companyName').val(),
-                          email: $('#onlyEmail').val(),
-                          password: $('#inputPassword').val(),
-                          login: $('#inputLogin').val(),
-                      }),
-                      fail: function (xhr, textStatus, errorThrown) {
-                          $('.sendCredsErrors').empty();
-                          $('.sendCredsErrors').append(xhr.responseText);
-                      },
-                      error: function (jqXHR, textStatus, errorThrown) {
-                          $('.sendCredsErrors').empty();
-                          $('.sendCredsErrors').append(jqXHR.responseText);
-                      },
-                      success: function (data, textStatus, jqXHR) {
-                          $('.sendCredsSuccsess').empty();
-                          $('.sendCredsSuccsess').append(data);
-                      },
-                  });
-              }
-          </script>
+          <div class="form-label-group">
+            <label for="firstName"> Имя </label>
+            <input id="firstName" class="form-control" name="firstName"
+                   required autofocus>
+            <br>
+          </div>
+
+
+          <div class="form-label-group">
+            <label for="secondName"> Фамилия </label>
+            <input id="secondName" class="form-control" name="secondName"
+                   required autofocus>
+            <br>
+          </div>
+
+          <div class="form-label-group">
+            <label for="selectedCompany"> Выбрать компанию: </label>
+            <select id="selectedCompany" class="form-control form-control-sm">
+              <option selected>Выбрать компанию</option>
+                {{range .Companies}}
+                  <option value="{{.ID}}"> {{.Name}} </option>
+                {{end}}
+            </select>
+          </div>
+
+          <div class="form-label-group">
+            <label for="onlyEmail">Почтовый адрес</label>
+            <input id="onlyEmail" class="form-control" name="email"
+                   required autofocus>
+            <br>
+          </div>
+
+
+          <div class="form-label-group">
+            <label for="inputPassword">Пароль ( не менее 6 символов) </label>
+            <input type="password" id="inputPassword" name="password"
+                   class="form-control" placeholder="Password" required>
+          </div>
+        </form>
+        <div id="messages" class="center-block">
+          <p id="sendCredsErrors" class="center-block"
+             style="font-size: 18px; color: #ea4335; text-align: center"></p>
+          <p id="sendCredsSuccsess" class="center-block"
+             style="font-size: 18px; color: #3cea43; text-align: center"></p>
         </div>
+        <button style="max-width: 250px" class="btn btn-lg btn-primary btn-block center-block text-uppercase"
+                onclick="sendNewUserCreds()"> Создать
+          <br>
+          пользователя
+        </button>
+
+
+        <script>
+            function sendNewUserCreds() {
+                errorDiv = $('#sendCredsErrors')
+                errorDiv.empty();
+                var successDiv = $('#sendCredsSuccsess')
+                successDiv.empty()
+
+                companyID = $('#selectedCompany').val()
+                companyName = $("#selectedCompany option:selected").text()
+
+                if (companyID === 0) {
+                    errorDiv.empty();
+                    errorDiv.show();
+                    errorDiv.append("Выберите компанию!");
+                    return
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "/user",
+                    data: JSON.stringify({
+                        firstName: $('#firstName').val(),
+                        secondName: $('#secondName').val(),
+                        companyID: parseInt(companyID),
+                        companyName: companyName,
+                        email: $('#onlyEmail').val(),
+                        password: $('#inputPassword').val(),
+                        login: $('#inputLogin').val(),
+                    }),
+                    fail: function (xhr, textStatus, errorThrown) {
+                        errorDiv.empty();
+                        errorDiv.append(xhr.responseText);
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        errorDiv.empty();
+                        errorDiv.append(jqXHR.responseText);
+                    },
+                    success: function (data, textStatus, jqXHR) {
+                        successDiv.empty();
+                        successDiv.append(data);
+                    },
+                });
+            }
+        </script>
       </div>
     </div>
   </div>
+
 
   </body>
   </html>

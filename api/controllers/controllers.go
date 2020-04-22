@@ -1,7 +1,10 @@
 package controllers
 
 import (
+	"net/http"
 	"time"
+
+	"github.com/Jopoleon/rustamViewer/models"
 
 	"github.com/Jopoleon/rustamViewer/config"
 	"github.com/Jopoleon/rustamViewer/storage"
@@ -33,4 +36,13 @@ func NewControllers(rep *storage.Storage, log *logrus.Logger, cfg *config.Config
 		Repository: rep,
 	}
 	return a
+}
+
+func (c *Controllers) UserFromContext(w http.ResponseWriter, r *http.Request) *models.User {
+	user, ok := r.Context().Value("userData").(models.User)
+	if !ok || user.Login == "" {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return nil
+	}
+	return &user
 }

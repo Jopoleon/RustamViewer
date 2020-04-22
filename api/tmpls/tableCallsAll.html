@@ -1,0 +1,138 @@
+{{define "tableCallsAll"}}
+
+  <div id="tableCallsAll" class="container-fluid">
+    <a href="../export/calls" style="margin: 3px;padding:3px">
+      <button class="btn-success">Export Calls to CSV</button>
+    </a>
+    <div id="getFileError" style="color: red; text-align: center; font-size: 18px">
+    </div>
+  </div>
+  <table class="sortable companies">
+    <tr class="columnNames">
+      <th>ID</th>
+      <th>InteractionID</th>
+      <th>Source Address</th>
+      <th>Target Address</th>
+      <th>Interaction Type</th>
+      <th>Media Type</th>
+      <th>Start Time</th>
+      <th>End Time</th>
+      <th>ProjectID</th>
+      <th>Customer Data</th>
+      <th>CallID</th>
+      <th>Recording File ID</th>
+      <th>End Time Original</th>
+      <th>Update Flag</th>
+      <th>Create Audit Key</th>
+      <th>Downloads</th>
+    </tr>
+    <tbody>
+    {{range .CallsAll}}
+      <tr class="content">
+        <td>{{.ID}}</td>
+        <td>{{.InteractionID}}</td>
+        <td>{{.SourceAddress}}</td>
+        <td>{{.TargetAddress}}</td>
+        <td>{{.InteractionType}}</td>
+        <td>{{.MediaType}}</td>
+        <td>{{.StartTime}}</td>
+        <td>{{.EndTime}}</td>
+        <td>{{.ProjectID}}</td>
+        <td>{{.CustomerData}}</td>
+        <td>{{.CallID}}</td>
+        <td>{{.RecordingFileID}}</td>
+        <td>{{.EndTimeOriginal}}</td>
+        <td>{{.UpdateFlag}}</td>
+        <td>{{.CreateAuditKey}}</td>
+        <td>
+          <div class="btn-toolbar" role="group">
+            <button type="button" onclick="Download({{.ID}},'txt')" class="btn btn-primary"><span
+                      class="glyphicon glyphicon-save-file"> </span> TXT
+            </button>
+            <button type="button" onclick="Download({{.ID}},'wav')" class="btn btn-primary"><span
+                      class="glyphicon glyphicon-headphones"> </span> WAV
+            </button>
+          </div>
+        </td>
+      </tr>
+    {{end}}
+    </tbody>
+  </table>
+  <script>
+      function Download(callID, fileType) {
+          console.log(callID);
+          console.log(fileType);
+          $('#getFileError').empty();
+
+          $.ajax({
+              type: "GET",
+              dataType: "json",
+              url: "/file" + "?fileType=" + fileType + "&callID=" + callID,
+              fail: function (xhr, textStatus, errorThrown) {
+                  $('#getFileError').empty();
+                  $('#getFileErrorr').append(xhr.responseText);
+              },
+              error: function (jqXHR, textStatus, errorThrown) {
+                  $('#getFileError').empty();
+                  $('#getFileError').append(jqXHR.responseText);
+              },
+              success: function (data, textStatus, jqXHR) {
+                  $('#getFileError').empty();
+
+                  if (data.type === "txt") {
+                      downloadTxt(data.name + "." + data.type, atou(data.data), 'data:text/plain; charset=UTF-8,');
+                  }
+                  if (data.type === "wav") {
+                      downloadWav(data.name + "." + data.type, data.data, 'data:audio/ogg;base64,');
+                  }
+              },
+          });
+      }
+
+      function atou(b64) {
+          return decodeURIComponent(escape(atob(b64)));
+      }
+
+      function downloadWav(filename, bytes, attribute) {
+          var element = document.createElement('a');
+          element.setAttribute('href', attribute + bytes);
+          element.setAttribute('download', filename);
+
+          element.style.display = 'none';
+          document.body.appendChild(element);
+
+          element.click();
+
+          document.body.removeChild(element);
+      }
+
+      function downloadTxt(filename, text, attribute) {
+          var element = document.createElement('a');
+          element.setAttribute('href', attribute + encodeURIComponent(text));
+          element.setAttribute('download', filename);
+
+          element.style.display = 'none';
+          document.body.appendChild(element);
+
+          element.click();
+
+          document.body.removeChild(element);
+      }
+
+      function saveRecording(recordingName) {
+          var a = document.createElement("a");
+          document.body.appendChild(a);
+          a.style = "display: none";
+          var blob = FWRecorder.getBlob(recordingName),
+              url = window.URL.createObjectURL(blob);
+          a.href = url;
+          a.download = recordingName + '-fwr-recording.wav';
+          a.click();
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+      }
+  </script>
+  </div>
+{{end}}
+
+
