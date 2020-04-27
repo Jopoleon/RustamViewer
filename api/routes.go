@@ -30,6 +30,7 @@ func (a *API) InitRouter() {
 	r.Use(middleware.Timeout(20 * time.Second))
 	r.Group(func(r chi.Router) {
 		r.MethodFunc("GET", "/login", a.LoginHandler)
+		r.MethodFunc("GET", "/auth", a.AuthHandler)
 		r.MethodFunc("GET", "/templates/*", a.ServeStatic)
 		r.MethodFunc("POST", "/login", a.SubmitLogin)
 
