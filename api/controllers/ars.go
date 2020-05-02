@@ -10,7 +10,7 @@ import (
 	"github.com/go-chi/chi"
 )
 
-func (a *Controllers) GetArsWithFilters(w http.ResponseWriter, r *http.Request) {
+func (a *Controllers) GetArsByProjectID(w http.ResponseWriter, r *http.Request) {
 	params := r.URL.Query()
 
 	user := a.UserFromContext(w, r)
@@ -28,6 +28,7 @@ func (a *Controllers) GetArsWithFilters(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 }
+
 func (a *Controllers) GetAllArsWithFilters(w http.ResponseWriter, r *http.Request) {
 	params := r.URL.Query()
 

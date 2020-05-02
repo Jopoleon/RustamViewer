@@ -38,7 +38,7 @@ func (a *Controllers) AuthHandler(w http.ResponseWriter, r *http.Request) {
 	user, err := a.Repository.DB.GetUserByID(value.UserID)
 	if err != nil {
 		a.Logger.Errorf("%v", err)
-		w.WriteHeader(http.StatusNotFound)
+		w.WriteHeader(http.StatusUnauthorized)
 		w.Write([]byte("user not found"))
 		return
 	}

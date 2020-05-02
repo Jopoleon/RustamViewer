@@ -27,7 +27,17 @@ func (a *Controllers) CreateNewUserTmpl(w http.ResponseWriter, r *http.Request) 
 
 func (a *Controllers) GetUser(w http.ResponseWriter, r *http.Request) {
 	user := a.UserFromContext(w, r)
-	err := Templates.ExecuteTemplate(w, "updateUser", IndexData{User: user})
+	company, err := a.Repository.DB.GetCompanyByID(user.CompanyID)
+	if err != nil {
+		a.Logger.Errorf("%v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	data := IndexData{
+		User:      user,
+		Companies: []models.Company{*company},
+	}
+	err = json.NewEncoder(w).Encode(data)
 	if err != nil {
 		a.Logger.Errorf("%v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)

@@ -49,6 +49,34 @@ func (db *DB) DeleteUserFromApp(user_id int) error {
 	return nil
 }
 
+func (db *DB) GetCompanyApps(companyID int) ([]models.Application, error) {
+	var res []models.Application
+	q := `SELECT projects.id, projects.project_name,projects.description FROM projects,project_companies 
+				WHERE projects.id = project_companies.project_id 
+				AND project_companies.company_id = $1;`
+	err := db.DB.Select(&res, q, companyID)
+	if err != nil {
+		db.Logger.Error(errors.WithStack(err))
+		return nil, errors.WithStack(err)
+	}
+	for i, a := range res {
+		var users []models.User
+		appUserQ :=
+			`SELECT users.id, login, email, password, is_admin, first_name, 
+				second_name, company_name, company_id
+    			FROM users,users_projects
+    			WHERE users.id = users_projects.user_id AND
+           			users_projects.project_id= $1;`
+		err = db.DB.Select(&users, appUserQ, a.ID)
+		if err != nil {
+			db.Logger.Error(errors.WithStack(err))
+			return nil, errors.WithStack(err)
+		}
+		res[i].AppUsers = users
+	}
+	return res, nil
+}
+
 func (db *DB) GetUserApps(user_id int) ([]models.Application, error) {
 	var res []models.Application
 	q := `SELECT * FROM projects,users_projects 

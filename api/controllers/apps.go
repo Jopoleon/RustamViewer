@@ -40,3 +40,5 @@ func (a *Controllers) CreateNewUserApp(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Write([]byte(fmt.Sprintf("Проект %s добавлен.", app.ProjectName)))
 }
+
+//(w http.ResponseWriter, r *http.Request) {}

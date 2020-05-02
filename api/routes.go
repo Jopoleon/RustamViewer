@@ -10,24 +10,12 @@ import (
 func (a *API) InitRouter() {
 
 	r := chi.NewRouter()
-	//Enabling Cross Origin Resource Sharing
-	//corss := cors.New(cors.Options{
-	//	// Use this to allow specific origin hosts
-	//	AllowedOrigins:     []string{"*"},
-	//	AllowedMethods:     []string{"*"},
-	//	AllowedHeaders:     []string{"*"},
-	//	ExposedHeaders:     []string{"*"},
-	//	AllowCredentials:   true,
-	//	MaxAge:             300, // Maximum value not ignored by any of major browsers
-	//	OptionsPassthrough: true,
-	//	Debug:              false,
-	//})
-	//r.Use(corss.Handler)
-	//r.Use(rscors.Default().Handler)
 	r.Use(middleware.Logger)
 	r.Use(a.ParseTemplates)
+	//Enabling Cross Origin Resource Sharing
 	r.Use(a.OptionsCors)
 	r.Use(middleware.Timeout(20 * time.Second))
+
 	r.Group(func(r chi.Router) {
 		r.MethodFunc("GET", "/login", a.LoginHandler)
 		r.MethodFunc("GET", "/auth", a.AuthHandler)
@@ -43,7 +31,6 @@ func (a *API) InitRouter() {
 			rr.MethodFunc("GET", "/user", a.GetUser)
 			rr.MethodFunc("PUT", "/user", a.UpdateUser)
 
-			rr.MethodFunc("GET", "/filterTable", a.GetArsWithFilters)
 			rr.MethodFunc("GET", "/waverecord/{ID}", a.GetArs)
 			rr.MethodFunc("GET", "/file", a.GetFile)
 
@@ -57,13 +44,20 @@ func (a *API) InitRouter() {
 			rr.MethodFunc("GET", "/vars/{callID}", a.GetVarsByCallID)
 			rr.MethodFunc("GET", "/ars/{callID}", a.GetArsByCallID)
 
-			rr.MethodFunc("GET", "/calls", a.GetCallsAll)
+			rr.MethodFunc("GET", "/calls/{projectID}", a.GetCallsAll)
+			rr.MethodFunc("GET", "/callsout/{projectID}", a.GetCallsOutAll)
+			rr.MethodFunc("GET", "/vars/{projectID}", a.GetVarsWithFilters)
+			rr.MethodFunc("GET", "/ars/{projectID}", a.GetArsByProjectID)
+
 			rr.MethodFunc("GET", "/callsout", a.GetCallsOutAll)
+			rr.MethodFunc("GET", "/calls", a.GetCallsAll)
 			rr.MethodFunc("GET", "/vars", a.GetVarsWithFilters)
 			rr.MethodFunc("GET", "/ars", a.GetAllArsWithFilters)
+
 			rr.Group(func(admin chi.Router) {
 				admin.Use(a.AdminOnly)
-				admin.MethodFunc("GET", "/companies", a.ListCompanies) // with apps included
+				admin.MethodFunc("GET", "/companies", a.ListCompanies)           // with apps and users included
+				admin.MethodFunc("GET", "/companies/{companyID}", a.CompanyByID) // with apps and users included
 				admin.MethodFunc("POST", "/company", a.CreateNewCompany)
 				admin.MethodFunc("GET", "/createUser", a.CreateNewUserTmpl)
 				admin.MethodFunc("POST", "/user", a.CreateNewUser)

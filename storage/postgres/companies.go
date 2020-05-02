@@ -1,8 +1,6 @@
 package postgres
 
 import (
-	"database/sql"
-
 	"github.com/Jopoleon/rustamViewer/models"
 	"github.com/pkg/errors"
 )
@@ -26,18 +24,45 @@ func (db *DB) GetCompanies() ([]models.Company, error) {
 		return nil, errors.WithStack(err)
 	}
 	for i, c := range res {
-		var apps []models.Application
-		query := `SELECT projects.id, project_name, description 
-FROM projects,project_companies
-WHERE projects.id = project_companies.project_id AND 
-project_companies.company_id = $1;
-`
-		err = db.DB.Select(&apps, query, c.ID)
-		if err != nil && err != sql.ErrNoRows {
+		apps, err := db.GetCompanyApps(c.ID)
+		if err != nil {
+			db.Logger.Error(errors.WithStack(err))
+			return nil, errors.WithStack(err)
+		}
+		//comp, err := db.GetCompanyByID(c.ID)
+
+		var users []models.User
+		err = db.DB.Select(&users, "SELECT * FROM users WHERE company_id = $1;", c.ID)
+		if err != nil {
 			db.Logger.Error(errors.WithStack(err))
 			return nil, errors.WithStack(err)
 		}
 		res[i].Apps = apps
+		res[i].Users = users
 	}
 	return res, nil
+}
+
+func (db *DB) GetCompanyByID(id int) (*models.Company, error) {
+	var res models.Company
+	err := db.DB.Get(&res, "SELECT * FROM companies WHERE id = $1;", id)
+	if err != nil {
+		db.Logger.Error(errors.WithStack(err))
+		return nil, errors.WithStack(err)
+	}
+	apps, err := db.GetCompanyApps(res.ID)
+	if err != nil {
+		db.Logger.Error(errors.WithStack(err))
+		return nil, errors.WithStack(err)
+	}
+	var users []models.User
+	err = db.DB.Select(&users, "SELECT * FROM users WHERE company_id = $1;", id)
+	if err != nil {
+		db.Logger.Error(errors.WithStack(err))
+		return nil, errors.WithStack(err)
+	}
+	res.Apps = apps
+	res.Users = users
+
+	return &res, nil
 }
