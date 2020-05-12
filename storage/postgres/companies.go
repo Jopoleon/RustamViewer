@@ -66,3 +66,20 @@ func (db *DB) GetCompanyByID(id int) (*models.Company, error) {
 
 	return &res, nil
 }
+
+func (db *DB) DeleteCompany(companyID int) error {
+	_, err := db.DB.Exec("DELETE FROM companies WHERE id=$1",
+		companyID)
+	if err != nil {
+		db.Logger.Error(errors.WithStack(err))
+		return errors.WithStack(err)
+	}
+	_, err = db.DB.Exec("DELETE FROM projects_companies WHERE company_id=$1",
+		appID)
+	if err != nil {
+		db.Logger.Error(errors.WithStack(err))
+		return errors.WithStack(err)
+	}
+
+	return nil
+}

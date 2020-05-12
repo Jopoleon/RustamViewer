@@ -3,25 +3,26 @@ package app
 import (
 	"time"
 
+	"github.com/Jopoleon/rustamViewer/logger"
+
 	"github.com/Jopoleon/rustamViewer/api"
 	"github.com/Jopoleon/rustamViewer/config"
 	"github.com/Jopoleon/rustamViewer/storage"
-	"github.com/sirupsen/logrus"
 )
 
 // App struct is base struct with all essential information about application
 type App struct {
 	//API       *api.API
 	StartTime time.Time
-	Logger    *logrus.Logger
+	Logger    *logger.LocalLogger
 	Config    *config.Config
 }
 
 // New inits new App instance
-func New(cfg *config.Config, logger *logrus.Logger) (*App, error) {
+func New(cfg *config.Config, l *logger.LocalLogger) (*App, error) {
 	return &App{
 		//API:       api,
-		Logger:    logger,
+		Logger:    l,
 		Config:    cfg,
 		StartTime: time.Now(),
 	}, nil

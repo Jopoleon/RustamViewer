@@ -5,12 +5,15 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
+
+	"github.com/go-chi/chi"
 
 	"github.com/Jopoleon/rustamViewer/models"
 )
 
-func (a *Controllers) CreateNewUserApp(w http.ResponseWriter, r *http.Request) {
-	a.UserFromContext(w, r)
+func (a *Controllers) CreateNewApplication(w http.ResponseWriter, r *http.Request) {
+	actor := a.UserFromContext(w, r)
 
 	b, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -32,13 +35,31 @@ func (a *Controllers) CreateNewUserApp(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	err = a.Repository.DB.CreateNewApp(app.CompanyID, app.ProjectName, app.Description)
+	err = a.Repository.DB.CreateNewApp(&app)
 	if err != nil {
 		a.Logger.Errorf("%v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	a.Logger.Info("application ", app, " CREATED by: ", actor)
 	w.Write([]byte(fmt.Sprintf("Проект %s добавлен.", app.ProjectName)))
 }
 
-//(w http.ResponseWriter, r *http.Request) {}
+func (a *Controllers) DeleteApplication(w http.ResponseWriter, r *http.Request) {
+	actor := a.UserFromContext(w, r)
+	appID := chi.URLParam(r, "ID")
+	id, err := strconv.Atoi(appID)
+	if err != nil {
+		a.Logger.Errorf("%v", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	err = a.Repository.DB.DeleteApplication(id)
+	if err != nil {
+		a.Logger.Errorf("%v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	a.Logger.Info("application with ID ", id, " DELETED by: ", actor)
+	w.Write([]byte(fmt.Sprintf("Проект удален.")))
+}

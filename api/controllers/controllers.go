@@ -4,30 +4,30 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/Jopoleon/rustamViewer/logger"
 	"github.com/Jopoleon/rustamViewer/models"
 
 	"github.com/Jopoleon/rustamViewer/config"
 	"github.com/Jopoleon/rustamViewer/storage"
 	"github.com/go-chi/chi"
-	"github.com/sirupsen/logrus"
 )
 
 const (
-	CookieMaxAge   = 259200 //cookie expiration time in seconds (3 days)
+	CookieMaxAge   = 259200 //cookie expiration time in seconds ( 259200 = 3 days )
 	CookieAuthName = "AUTH_SESSION"
 	CookieName     = "user_session"
 )
 
 type Controllers struct {
 	StartTime  time.Time
-	Logger     *logrus.Logger
+	Logger     *logger.LocalLogger
 	HttpPort   string
 	Config     *config.Config
 	Router     *chi.Mux
 	Repository *storage.Storage
 }
 
-func NewControllers(rep *storage.Storage, log *logrus.Logger, cfg *config.Config) *Controllers {
+func NewControllers(rep *storage.Storage, log *logger.LocalLogger, cfg *config.Config) *Controllers {
 	a := &Controllers{
 		HttpPort:   cfg.HttpPort,
 		StartTime:  time.Now(),

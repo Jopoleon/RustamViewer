@@ -8,14 +8,14 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (db *DB) CreateNewApp(companyID int, projectName, description string) error {
+func (db *DB) CreateNewApp(app *models.Application) error {
 
-	rows, err := db.DB.Query("INSERT INTO projects (project_name, description) VALUES ($1,$2) RETURNING id;",
-		projectName, description)
+	rows, err := db.DB.Query("INSERT INTO projects (project_name, description, is_recording, transcription, language) VALUES ($1,$2) RETURNING id;",
+		app.ProjectName, app.Description, app.IsRecording, app.Transcription, app.Language)
 	if err != nil {
 		if strings.Contains(err.Error(), "violates unique constraint") {
 			return errors.WithStack(errors.New(
-				fmt.Sprintf(ERROR_NON_UNIQUE, projectName)))
+				fmt.Sprintf(ERROR_NON_UNIQUE, app.ProjectName)))
 		}
 		db.Logger.Error(errors.WithStack(err))
 		return errors.WithStack(err)
@@ -31,7 +31,7 @@ func (db *DB) CreateNewApp(companyID int, projectName, description string) error
 	}
 
 	_, err = db.DB.Exec("INSERT INTO project_companies (project_id, company_id) VALUES ($1,$2);",
-		projectID, companyID)
+		app.ProjectID, app.CompanyID)
 	if err != nil {
 		db.Logger.Error(errors.WithStack(err))
 		return errors.WithStack(err)
@@ -46,6 +46,29 @@ func (db *DB) DeleteUserFromApp(user_id int) error {
 		db.Logger.Error(errors.WithStack(err))
 		return errors.WithStack(err)
 	}
+	return nil
+}
+
+func (db *DB) DeleteApplication(appID int) error {
+	_, err := db.DB.Exec("DELETE FROM projects WHERE id=$1",
+		appID)
+	if err != nil {
+		db.Logger.Error(errors.WithStack(err))
+		return errors.WithStack(err)
+	}
+	_, err = db.DB.Exec("DELETE FROM projects_companies WHERE project_id=$1",
+		appID)
+	if err != nil {
+		db.Logger.Error(errors.WithStack(err))
+		return errors.WithStack(err)
+	}
+	_, err = db.DB.Exec("DELETE FROM users_projects WHERE project_id=$1",
+		appID)
+	if err != nil {
+		db.Logger.Error(errors.WithStack(err))
+		return errors.WithStack(err)
+	}
+
 	return nil
 }
 

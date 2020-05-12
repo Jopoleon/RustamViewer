@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -40,6 +41,25 @@ func (a *Controllers) CreateNewCompany(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusCreated)
+}
+
+func (a *Controllers) DeleteCompany(w http.ResponseWriter, r *http.Request) {
+	actor := a.UserFromContext(w, r)
+	companyID := chi.URLParam(r, "ID")
+	id, err := strconv.Atoi(companyID)
+	if err != nil {
+		a.Logger.Errorf("%v", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	err = a.Repository.DB.DeleteCompany(id)
+	if err != nil {
+		a.Logger.Errorf("%v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	a.Logger.Info("company ", id, " deleted by: ", actor)
+	w.Write([]byte(fmt.Sprintf("Компания удалена.")))
 }
 
 func (a *Controllers) ListCompanies(w http.ResponseWriter, r *http.Request) {

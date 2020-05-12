@@ -13,7 +13,7 @@ func (db *DB) Migrate() error {
 		db.DBConfig.DBHost, db.DBConfig.DBPort,
 		db.DBConfig.DBUser, db.DBConfig.DBPass, db.DBConfig.DBName)
 
-	m, err := migrate.New("file://./migrations", str)
+	m, err := migrate.New("file://./storage/migrations", str)
 	if err != nil {
 		db.Logger.Fatalf("%v", err)
 		return errors.WithStack(err)

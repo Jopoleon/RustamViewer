@@ -8,26 +8,27 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/Jopoleon/rustamViewer/logger"
+
 	"github.com/Jopoleon/rustamViewer/api/controllers"
 
 	"github.com/Jopoleon/rustamViewer/config"
 
 	"github.com/Jopoleon/rustamViewer/storage"
 	"github.com/go-chi/chi"
-	"github.com/sirupsen/logrus"
 )
 
 type API struct {
 	*controllers.Controllers
 	StartTime  time.Time
-	Logger     *logrus.Logger
+	Logger     *logger.LocalLogger
 	HttpPort   string
 	Config     *config.Config
 	Router     *chi.Mux
 	Repository *storage.Storage
 }
 
-func NewAPI(rep *storage.Storage, log *logrus.Logger, cfg *config.Config) *API {
+func NewAPI(rep *storage.Storage, log *logger.LocalLogger, cfg *config.Config) *API {
 	a := &API{
 		controllers.NewControllers(rep, log, cfg),
 		time.Now(),

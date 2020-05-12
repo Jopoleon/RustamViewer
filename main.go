@@ -3,19 +3,12 @@ package main
 import (
 	"github.com/Jopoleon/rustamViewer/app"
 	"github.com/Jopoleon/rustamViewer/config"
-	runtime "github.com/banzaicloud/logrus-runtime-formatter"
+	"github.com/Jopoleon/rustamViewer/logger"
 	"github.com/sirupsen/logrus"
 )
 
 func main() {
-	ll := logrus.New()
-	childFormatter := logrus.JSONFormatter{}
-	runtimeFormatter := &runtime.Formatter{ChildFormatter: &childFormatter}
-	runtimeFormatter.Line = true
-	runtimeFormatter.File = true
-
-	ll.SetFormatter(runtimeFormatter)
-
+	ll := logger.NewLogger()
 	cfg := config.NewConfig()
 
 	a, err := app.New(cfg, ll)

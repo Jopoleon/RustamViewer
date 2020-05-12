@@ -10,7 +10,6 @@ import (
 
 //2020-03-20_07-49-01_4953080492_Inbound_79167013970_4953080492_3bae508b-2c43-4142-8a9b-899255b4da9f
 //1378	106607	7001	89167013970	Outbound	Voice	2020-03-20T08:22:33Z	2020-03-20T08:23:04Z	1111	MYCUST	0044841E-D933-1E57-9082-06009C0AAA77-1092655@10.156.0.6		2020-03-20T08:23:02Z	1	3354965
-
 func (a *Controllers) GetFile(w http.ResponseWriter, r *http.Request) {
 	params := r.URL.Query()
 	id := params.Get("callID")

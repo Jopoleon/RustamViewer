@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
+
+	"github.com/go-chi/chi"
 
 	"github.com/Jopoleon/rustamViewer/models"
 )
@@ -46,6 +49,7 @@ func (a *Controllers) GetUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *Controllers) CreateNewUser(w http.ResponseWriter, r *http.Request) {
+	actor := a.UserFromContext(w, r)
 	b, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		a.Logger.Errorf("%v", err)
@@ -73,6 +77,7 @@ func (a *Controllers) CreateNewUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	a.Logger.Info("user CREATED ", user, " by ", actor)
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte(fmt.Sprintf("Пользователь %s %s (%s) создан.",
 		user.FirstName, user.SecondName, user.Login)))
@@ -121,7 +126,34 @@ func (a *Controllers) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	a.Logger.Info("user with ID ", user.ID, " UPDATED by: ", user)
 	w.Write([]byte(fmt.Sprintf("Пользователь %s обновлен.", user.Login)))
+}
+
+func (a *Controllers) DeleteUser(w http.ResponseWriter, r *http.Request) {
+	actor := a.UserFromContext(w, r)
+	userid := chi.URLParam(r, "ID")
+	id, err := strconv.Atoi(userid)
+	if err != nil {
+		a.Logger.Errorf("%v", err)
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+		return
+	}
+	err = a.Repository.DB.DeleteUser(id, actor)
+	if err != nil {
+		a.Logger.Errorf("%v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	err = a.Repository.DB.DeleteUserFromApp(id)
+	if err != nil {
+		a.Logger.Errorf("%v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	a.Logger.Info("user with ID ", id, " DELETED by: ", actor)
+	w.Write([]byte(fmt.Sprintf("Пользователь %d удален.", userid)))
 }
 
 func (a *Controllers) AddUserToProjectTmpl(w http.ResponseWriter, r *http.Request) {

@@ -3,21 +3,22 @@ package postgres
 import (
 	"fmt"
 
+	"github.com/Jopoleon/rustamViewer/logger"
+
 	"github.com/Jopoleon/rustamViewer/config"
 	_ "github.com/lib/pq"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 )
 
 type DB struct {
-	Logger   *logrus.Logger
+	Logger   *logger.LocalLogger
 	DB       *sqlx.DB
 	DBConfig *config.Config
 }
 
-func NewPostgres(cfg config.Config, logger *logrus.Logger) (*DB, error) {
+func NewPostgres(cfg config.Config, logger *logger.LocalLogger) (*DB, error) {
 	str := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBPass, cfg.DBName)
 	ommitesStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
@@ -29,5 +30,12 @@ func NewPostgres(cfg config.Config, logger *logrus.Logger) (*DB, error) {
 	}
 	db.SetMaxOpenConns(5)
 	db.SetMaxIdleConns(5)
-	return &DB{DB: db, Logger: logger, DBConfig: &cfg}, nil
+
+	res := &DB{DB: db, Logger: logger, DBConfig: &cfg}
+	//err = res.Migrate()
+	//if err != nil {
+	//	logger.Errorf("could not establish connection to ", ommitesStr, err)
+	//	return nil, errors.WithStack(err)
+	//}
+	return res, nil
 }

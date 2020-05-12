@@ -3,6 +3,7 @@ package api
 import (
 	"time"
 
+	chiLog "github.com/766b/chi-logger"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 )
@@ -10,7 +11,8 @@ import (
 func (a *API) InitRouter() {
 
 	r := chi.NewRouter()
-	r.Use(middleware.Logger)
+	//middleware.Logger()
+	r.Use(chiLog.NewLogrusMiddleware("router", a.Logger.Log))
 	r.Use(a.ParseTemplates)
 	//Enabling Cross Origin Resource Sharing
 	r.Use(a.OptionsCors)
@@ -59,11 +61,16 @@ func (a *API) InitRouter() {
 				admin.MethodFunc("GET", "/companies", a.ListCompanies)           // with apps and users included
 				admin.MethodFunc("GET", "/companies/{companyID}", a.CompanyByID) // with apps and users included
 				admin.MethodFunc("POST", "/company", a.CreateNewCompany)
+				admin.MethodFunc("DELETE", "/company/{ID}", a.DeleteCompany)
+
 				admin.MethodFunc("GET", "/createUser", a.CreateNewUserTmpl)
 				admin.MethodFunc("POST", "/user", a.CreateNewUser)
+				admin.MethodFunc("DELETE", "/user/{ID}", a.DeleteUser)
+
 				admin.MethodFunc("GET", "/projects", a.AddUserToProjectTmpl)
 				admin.MethodFunc("POST", "/projects/{userID}", a.AddUserToProject)
-				admin.MethodFunc("POST", "/project", a.CreateNewUserApp)
+				admin.MethodFunc("POST", "/project", a.CreateNewApplication)
+				admin.MethodFunc("DELETE", "/project/{ID}", a.DeleteApplication)
 			})
 		})
 	})

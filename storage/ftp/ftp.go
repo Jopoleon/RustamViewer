@@ -3,17 +3,18 @@ package ftp
 import (
 	"io/ioutil"
 
+	"github.com/Jopoleon/rustamViewer/logger"
+
 	"github.com/Jopoleon/rustamViewer/config"
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 )
 
 type LocalFTP struct {
-	Logger    *logrus.Logger
+	Logger    *logger.LocalLogger
 	FTPConfig *config.FTP
 }
 
-func NewFTP(cfg *config.Config, logger *logrus.Logger) (*LocalFTP, error) {
+func NewFTP(cfg *config.Config, logger *logger.LocalLogger) (*LocalFTP, error) {
 	ftp := &LocalFTP{}
 	ftp.FTPConfig = &cfg.FTP
 	ftp.Logger = logger
