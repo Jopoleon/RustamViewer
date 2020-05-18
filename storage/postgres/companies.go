@@ -75,7 +75,7 @@ func (db *DB) DeleteCompany(companyID int) error {
 		return errors.WithStack(err)
 	}
 	_, err = db.DB.Exec("DELETE FROM projects_companies WHERE company_id=$1",
-		appID)
+		companyID)
 	if err != nil {
 		db.Logger.Error(errors.WithStack(err))
 		return errors.WithStack(err)

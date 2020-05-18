@@ -4,24 +4,6 @@ import "fmt"
 
 const FileNameTimeFormat = "2006-01-02_15-04-05"
 
-//create table calls_inbound
-//(
-//id serial not null
-//constraint calls_inbound_pkey
-//primary key,
-//interaction_id numeric(19),
-//source_address varchar(255),
-//target_address varchar(255),
-//interaction_type varchar(32),
-//media_type varchar(32),
-//start_time timestamp,
-//end_time timestamp,
-//project_id varchar(64),
-//customer_data varchar(255),
-//callid varchar(128),
-//profilename varchar(128),
-//created_on timestamp default CURRENT_TIMESTAMP
-//);
 type Calls struct {
 	ID              int     `json:"id" db:"id"`
 	InteractionID   int     `json:"interaction_id" db:"interaction_id"`
@@ -38,6 +20,7 @@ type Calls struct {
 	RecordingFileID *string `json:"recording_file_id" db:"recording_file_id"`
 	EndTimeOriginal MyTime  `json:"end_time_original" db:"end_time_original"`
 	UpdateFlag      *int    `json:"updated_flag" db:"updated_flag"`
+	RecordTrans     *string `json:"recordtrans" db:"recordtrans"`
 	CreateAuditKey  *int    `json:"create_audit_key" db:"create_audit_key"`
 	CreatedOn       MyTime  `json:"created_on" db:"created_on"`
 }
@@ -54,35 +37,6 @@ func (c *Calls) ToFileName() string {
 		*c.CallID)
 }
 
-//create table calls_outbound
-//(
-//id serial not null
-//contact_attempt_fact_key numeric(19),
-//contact_info varchar(128),
-//media_type varchar(32),
-//dialing_mode varchar(32),
-//campaign varchar(64),
-//call_result varchar(32),
-//record_type varchar(32),
-//record_status varchar(32),
-//calling_list varchar(64),
-//contact_info_type varchar(32),
-//time_zone varchar(32),
-//callid varchar(128),
-//start_time timestamp,
-//end_time timestamp,
-//record_id integer,
-//chain_id integer,
-//chain_n integer,
-//attempt integer,
-//daily_from timestamp,
-//daily_till timestamp,
-//dial_sched_time timestamp,
-//project_id varchar(64),
-//customer_data varchar(255),
-//created_on timestamp default CURRENT_TIMESTAMP
-//);
-//
 type CallsOutbound struct {
 	ID                    int     `json:"id" db:"id"`
 	ContactAttemptFactKey int     `json:"contact_attempt_fact_key" db:"contact_attempt_fact_key"`
