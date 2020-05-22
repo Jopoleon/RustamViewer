@@ -22,8 +22,8 @@ type LocalLogger struct {
 	*sync.RWMutex
 }
 
-func NewLogger(localRun bool) *LocalLogger {
-	if localRun {
+func NewLogger(productionStart string) *LocalLogger {
+	if productionStart == "0" {
 		ll := logrus.New()
 		childFormatter := logrus.TextFormatter{}
 		runtimeFormatter := &runtime.Formatter{ChildFormatter: &childFormatter}
@@ -73,8 +73,7 @@ func (ll *LocalLogger) createLogFile() error {
 		time.Now().Month().String(),
 		time.Now().Day())
 	path := "./logs/" + today
-	//os.Open()
-	file, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0666)
+	file, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		ll.Error(errors.WithStack(err))
 		return errors.WithStack(err)

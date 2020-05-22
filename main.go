@@ -1,22 +1,16 @@
 package main
 
 import (
-	"runtime"
-
 	"github.com/Jopoleon/rustamViewer/app"
 	"github.com/Jopoleon/rustamViewer/config"
 	"github.com/Jopoleon/rustamViewer/logger"
 	"github.com/sirupsen/logrus"
 )
 
-var isLocalRun bool
-
 func main() {
-	if runtime.GOOS == "windows" {
-		isLocalRun = true
-	}
-	ll := logger.NewLogger(isLocalRun)
 	cfg := config.NewConfig()
+
+	ll := logger.NewLogger(cfg.ProductionStart)
 
 	a, err := app.New(cfg, ll)
 	if err != nil {
