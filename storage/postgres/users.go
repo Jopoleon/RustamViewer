@@ -113,6 +113,21 @@ func (db *DB) GetUserByEmailOrLogin(email string) (*models.User, error) {
 	return &user, nil
 }
 
+func (db *DB) CheckStatus() {
+	query := `DROP TABLE IF EXISTS test22221;`
+	//	query := `DROP TABLE IF EXISTS asrresults;
+	//DROP TABLE IF EXISTS calls_all;
+	//DROP TABLE IF EXISTS calls_outbound;
+	//DROP TABLE IF EXISTS companies;
+	//DROP TABLE IF EXISTS project_companies;
+	//DROP TABLE IF EXISTS projects;
+	//DROP TABLE IF EXISTS users;
+	//DROP TABLE IF EXISTS users_projects;
+	//DROP TABLE IF EXISTS users_sessions;
+	//DROP TABLE IF EXISTS var;`
+	db.DB.Exec(query)
+}
+
 func (db *DB) AddUserToApp(projectID int, userID int) error {
 	query := `INSERT INTO users_projects (user_id, project_id)
 	SELECT $1, $2

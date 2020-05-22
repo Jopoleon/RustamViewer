@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"path"
 	"text/template"
 )
 
@@ -13,6 +14,8 @@ var Templates *template.Template
 func (a *Controllers) ParseTemplates(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		Templates = template.Must(template.ParseGlob("api/tmpls/*"))
+		tmpl, err := template.ParseFiles(path.Join("api/templates", "index.html"))
+		Templates = template.Must(tmpl, err)
 		next.ServeHTTP(w, r)
 	})
 
@@ -33,8 +36,9 @@ func (a *Controllers) OptionsCors(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
+
 func (a *Controllers) ServeStatic(w http.ResponseWriter, r *http.Request) {
 	fs := http.FileServer(http.Dir("api/templates"))
-	http.StripPrefix("/templates", fs).ServeHTTP(w, r)
+	http.StripPrefix("/", fs).ServeHTTP(w, r)
 	fs.ServeHTTP(w, r)
 }

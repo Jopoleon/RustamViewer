@@ -10,7 +10,7 @@ import (
 
 func (db *DB) CreateNewApp(app *models.Application) error {
 
-	rows, err := db.DB.Query("INSERT INTO projects (project_name, description, is_recording, transcription, language) VALUES ($1,$2) RETURNING id;",
+	rows, err := db.DB.Query("INSERT INTO projects (project_name, description, is_recording, transcription, language) VALUES ($1,$2,$3,$4,$5) RETURNING id;",
 		app.ProjectName, app.Description, app.IsRecording, app.Transcription, app.Language)
 	if err != nil {
 		if strings.Contains(err.Error(), "violates unique constraint") {
@@ -31,7 +31,7 @@ func (db *DB) CreateNewApp(app *models.Application) error {
 	}
 
 	_, err = db.DB.Exec("INSERT INTO project_companies (project_id, company_id) VALUES ($1,$2);",
-		app.ProjectID, app.CompanyID)
+		projectID, app.CompanyID)
 	if err != nil {
 		db.Logger.Error(errors.WithStack(err))
 		return errors.WithStack(err)

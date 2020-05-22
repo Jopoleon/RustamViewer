@@ -22,7 +22,25 @@ type LocalLogger struct {
 	*sync.RWMutex
 }
 
-func NewLogger() *LocalLogger {
+func NewLogger(localRun bool) *LocalLogger {
+	if localRun {
+		ll := logrus.New()
+		childFormatter := logrus.TextFormatter{}
+		runtimeFormatter := &runtime.Formatter{ChildFormatter: &childFormatter}
+		runtimeFormatter.Line = true
+		runtimeFormatter.File = true
+
+		ll.SetFormatter(runtimeFormatter)
+		res := LocalLogger{
+			ll,
+			ll,
+			time.Now(),
+			nil,
+			"",
+			new(sync.RWMutex),
+		}
+		return &res
+	}
 	ll := logrus.New()
 	childFormatter := logrus.JSONFormatter{}
 	runtimeFormatter := &runtime.Formatter{ChildFormatter: &childFormatter}
@@ -55,7 +73,8 @@ func (ll *LocalLogger) createLogFile() error {
 		time.Now().Month().String(),
 		time.Now().Day())
 	path := "./logs/" + today
-	file, err := os.Create(path)
+	//os.Open()
+	file, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0666)
 	if err != nil {
 		ll.Error(errors.WithStack(err))
 		return errors.WithStack(err)

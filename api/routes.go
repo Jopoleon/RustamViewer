@@ -11,9 +11,9 @@ import (
 func (a *API) InitRouter() {
 
 	r := chi.NewRouter()
-	//middleware.Logger()
 	r.Use(chiLog.NewLogrusMiddleware("router", a.Logger.Log))
 	r.Use(a.ParseTemplates)
+
 	//Enabling Cross Origin Resource Sharing
 	r.Use(a.OptionsCors)
 	r.Use(middleware.Timeout(20 * time.Second))
@@ -21,7 +21,7 @@ func (a *API) InitRouter() {
 	r.Group(func(r chi.Router) {
 		r.MethodFunc("GET", "/login", a.LoginHandler)
 		r.MethodFunc("GET", "/auth", a.AuthHandler)
-		r.MethodFunc("GET", "/templates/*", a.ServeStatic)
+		r.MethodFunc("GET", "/*", a.ServeStatic)
 		r.MethodFunc("POST", "/login", a.SubmitLogin)
 
 		// Private business logic routes
@@ -63,11 +63,11 @@ func (a *API) InitRouter() {
 				admin.MethodFunc("POST", "/company", a.CreateNewCompany)
 				admin.MethodFunc("DELETE", "/company/{ID}", a.DeleteCompany)
 
-				admin.MethodFunc("GET", "/createUser", a.CreateNewUserTmpl)
+				//admin.MethodFunc("GET", "/createUser", a.CreateNewUserTmpl)
 				admin.MethodFunc("POST", "/user", a.CreateNewUser)
 				admin.MethodFunc("DELETE", "/user/{ID}", a.DeleteUser)
 
-				admin.MethodFunc("GET", "/projects", a.AddUserToProjectTmpl)
+				//admin.MethodFunc("GET", "/projects", a.AddUserToProjectTmpl)
 				admin.MethodFunc("POST", "/projects/{userID}", a.AddUserToProject)
 				admin.MethodFunc("POST", "/project", a.CreateNewApplication)
 				admin.MethodFunc("DELETE", "/project/{ID}", a.DeleteApplication)
