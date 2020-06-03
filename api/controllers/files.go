@@ -6,11 +6,14 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+
+	"github.com/k0kubun/pp"
 )
 
 //2020-03-20_07-49-01_4953080492_Inbound_79167013970_4953080492_3bae508b-2c43-4142-8a9b-899255b4da9f
 //1378	106607	7001	89167013970	Outbound	Voice	2020-03-20T08:22:33Z	2020-03-20T08:23:04Z	1111	MYCUST	0044841E-D933-1E57-9082-06009C0AAA77-1092655@10.156.0.6		2020-03-20T08:23:02Z	1	3354965
 func (a *Controllers) GetFile(w http.ResponseWriter, r *http.Request) {
+	pp.Println("GetFile used")
 	params := r.URL.Query()
 	id := params.Get("callID")
 	if id == "" {
@@ -32,9 +35,12 @@ func (a *Controllers) GetFile(w http.ResponseWriter, r *http.Request) {
 	f := File{}
 
 	//check if
-
-	if !user.ProjectNameAccessRights(*call.ProfileName) {
-		http.Error(w, FILE_NOT_FOUND, http.StatusNotFound)
+	pp.Println(call)
+	pp.Println(&call.ProfileName)
+	pp.Println(user.AppNames)
+	fName := call.ToFileName()
+	if !user.ProjectNameAccessRights(fmt.Sprintf("%s", *call.ProjectID)) {
+		http.Error(w, (fmt.Sprintf(FILE_NOT_FOUND, fName)), http.StatusNotFound)
 		return
 	}
 
@@ -44,12 +50,13 @@ func (a *Controllers) GetFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	f.Type = fileType
-	fName := call.ToFileName()
+
+	pp.Println(fName)
 	res, err := a.Repository.FTP.GetFile(fName, fileType)
 	if err != nil {
 		if strings.Contains(err.Error(), "no such file or directory") {
 			a.Logger.Errorf("%v", err)
-			http.Error(w, fmt.Sprintf(FILE_NOT_FOUND, fName), http.StatusNotFound)
+			http.Error(w, fmt.Sprintf((fmt.Sprintf(FILE_NOT_FOUND, fName)), fName), http.StatusNotFound)
 			return
 		}
 		a.Logger.Errorf("%v", err)

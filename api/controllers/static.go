@@ -13,7 +13,6 @@ var Templates *template.Template
 // so every update in template source code is included in response html
 func (a *Controllers) ParseTemplates(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		Templates = template.Must(template.ParseGlob("api/tmpls/*"))
 		tmpl, err := template.ParseFiles(path.Join("api/templates", "index.html"))
 		Templates = template.Must(tmpl, err)
 		next.ServeHTTP(w, r)
@@ -30,7 +29,7 @@ func (a *Controllers) OptionsCors(next http.Handler) http.Handler {
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
 		w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
 		if r.Method == "OPTIONS" {
-			w.WriteHeader(http.StatusOK)
+			//w.WriteHeader(http.StatusOK)
 			next.ServeHTTP(w, r)
 		}
 		next.ServeHTTP(w, r)

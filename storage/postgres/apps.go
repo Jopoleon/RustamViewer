@@ -39,7 +39,18 @@ func (db *DB) CreateNewApp(app *models.Application) error {
 	return nil
 }
 
-func (db *DB) DeleteUserFromApp(user_id int) error {
+func (db *DB) DeleteUserFromApplication(userID, projectID int) error {
+
+	q := `DELETE FROM users_projects WHERE user_id = $1 AND project_id = $2;`
+	_, err := db.DB.Exec(q, userID, projectID)
+	if err != nil {
+		db.Logger.Error(errors.WithStack(err))
+		return errors.WithStack(err)
+	}
+
+	return nil
+}
+func (db *DB) DeleteUserFromAllApps(user_id int) error {
 	_, err := db.DB.Exec("DELETE FROM users_projects WHERE user_id=$1",
 		user_id)
 	if err != nil {

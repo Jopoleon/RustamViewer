@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/Jopoleon/rustamViewer/app"
 	"github.com/Jopoleon/rustamViewer/config"
 	"github.com/Jopoleon/rustamViewer/logger"
@@ -8,6 +10,7 @@ import (
 )
 
 func main() {
+	fmt.Println("starting......")
 	cfg := config.NewConfig()
 
 	ll := logger.NewLogger(cfg.ProductionStart)

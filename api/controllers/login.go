@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
-	"text/template"
 
 	"github.com/Jopoleon/rustamViewer/models"
 	"github.com/gorilla/securecookie"
@@ -18,11 +17,11 @@ func (a *Controllers) AuthHandler(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie(CookieName)
 	if err != nil {
 		if err == http.ErrNoCookie {
-			w.WriteHeader(http.StatusUnauthorized)
+			http.RedirectHandler("/login", http.StatusUnauthorized)
 			return
 		}
 		a.Logger.Errorf("%v", err)
-		w.WriteHeader(http.StatusBadRequest)
+		http.Error(w, "can't read cookie", http.StatusBadRequest)
 		return
 	}
 	var value models.Session
@@ -31,8 +30,7 @@ func (a *Controllers) AuthHandler(w http.ResponseWriter, r *http.Request) {
 	err = s.Decode(CookieAuthName, cookie.Value, &value)
 	if err != nil {
 		a.Logger.Errorf("%v", err)
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("cookies not correct"))
+		http.Error(w, "cookies are not correct", http.StatusBadRequest)
 		return
 	}
 
@@ -55,21 +53,6 @@ func (a *Controllers) AuthHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		a.Logger.Errorf("%v", err)
 		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-}
-
-func (a *Controllers) LoginHandler(w http.ResponseWriter, r *http.Request) {
-	t, err := template.ParseFiles("api/templates/index.html")
-	if err != nil {
-		a.Logger.Errorf("%v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	err = t.Execute(w, nil)
-	if err != nil {
-		a.Logger.Errorf("%v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 }

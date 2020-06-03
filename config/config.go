@@ -1,9 +1,8 @@
 package config
 
 import (
+	"fmt"
 	"os"
-
-	"github.com/sirupsen/logrus"
 
 	"github.com/joho/godotenv"
 )
@@ -35,9 +34,9 @@ type FTP struct {
 func NewConfig() *Config {
 	err := godotenv.Load(".env")
 	if err != nil {
-		logrus.Warn("no .env file, reading config from OS ENV variables")
+		fmt.Println("[WARNING] no .env file, reading config from OS ENV variables, error: ", err)
 	}
-	return &Config{
+	cfg := &Config{
 		DBUser:          os.Getenv("DB_USER"),
 		DBPass:          os.Getenv("DB_PASSWORD"),
 		DBName:          os.Getenv("DB_NAME"),
@@ -48,4 +47,6 @@ func NewConfig() *Config {
 		ProductionStart: os.Getenv("PRODUCTION_START"),
 		FTP:             FTP{FilesPath: os.Getenv("WAVS_PATH")},
 	}
+	fmt.Printf("%+v\n", cfg)
+	return cfg
 }

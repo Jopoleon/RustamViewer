@@ -41,7 +41,7 @@ func NewControllers(rep *storage.Storage, log *logger.LocalLogger, cfg *config.C
 func (c *Controllers) UserFromContext(w http.ResponseWriter, r *http.Request) *models.User {
 	user, ok := r.Context().Value("userData").(models.User)
 	if !ok || user.Login == "" {
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		http.Error(w, "no user info", http.StatusBadRequest)
 		return nil
 	}
 	return &user

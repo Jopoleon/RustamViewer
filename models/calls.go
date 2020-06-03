@@ -28,13 +28,22 @@ type Calls struct {
 func (c *Calls) ToFileName() string {
 	//start_time _ project_id _ interaction_type _ source_address _ target_address _ callid
 	//2020-03-20_07-49-01_4953080492_Inbound_79167013970_4953080492_3bae508b-2c43-4142-8a9b-899255b4da9f
-	return fmt.Sprintf("%s_%d_%s_%s_%s_%s",
-		c.StartTime.Time.Format(FileNameTimeFormat),
-		*c.ProjectID,
-		*c.InteractionType,
-		*c.SourceAddress,
-		*c.TargetAddress,
-		*c.CallID)
+	if c.RecordTrans != nil &&
+		c.ProjectID != nil &&
+		c.InteractionType != nil &&
+		c.SourceAddress != nil &&
+		c.TargetAddress != nil &&
+		c.CallID != nil {
+		return fmt.Sprintf("%s_%s_%d_%s_%s_%s_%s",
+			c.StartTime.Time.Format(FileNameTimeFormat),
+			*c.RecordTrans,
+			*c.ProjectID,
+			*c.InteractionType,
+			*c.SourceAddress,
+			*c.TargetAddress,
+			*c.CallID)
+	}
+	return ""
 }
 
 type CallsOutbound struct {

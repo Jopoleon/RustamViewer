@@ -21,11 +21,12 @@ func (a *API) CheckAuth(next http.Handler) http.Handler {
 		if err != nil {
 			if err == http.ErrNoCookie {
 				a.Logger.Errorf("%v", err)
-				http.Redirect(w, r, "/login", http.StatusSeeOther)
+				http.RedirectHandler("/login", http.StatusUnauthorized)
+				//http.Error(w, "no cookie found", http.StatusUnauthorized)
 				return
 			}
 			a.Logger.Errorf("%v", err)
-			w.Write([]byte(err.Error()))
+			http.Error(w, "can't read cookie", http.StatusBadRequest)
 			return
 		}
 		var value models.Session
@@ -34,14 +35,19 @@ func (a *API) CheckAuth(next http.Handler) http.Handler {
 		err = s.Decode(CookieAuthName, cookie.Value, &value)
 		if err != nil {
 			a.Logger.Errorf("%v", err)
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(err.Error()))
+			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-
+		//ctxUser := a.Controllers.UserFromContext(w, r)
+		//if ctxUser == nil || ctxUser.Login == "" {
+		//	a.Logger.Errorf("%v", err)
+		//	http.Redirect(w, r, "/login", http.StatusSeeOther)
+		//	return
+		//}
 		user, err := a.Repository.DB.GetUserByID(value.UserID)
 		if err != nil {
 			a.Logger.Errorf("%v", err)
+			//This happens when you WriteHeader after a Write, which already flushes the headers.
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte(err.Error()))
 			return

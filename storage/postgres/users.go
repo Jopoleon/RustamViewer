@@ -26,7 +26,7 @@ func (db *DB) CreateUser(user models.User) error {
 	return nil
 }
 
-func (db *DB) DeleteUser(userID int, actor *models.User) error {
+func (db *DB) DeleteUser(userID int) error {
 
 	q := `DELETE FROM users WHERE id = $1;`
 	_, err := db.DB.Exec(q, userID)
@@ -37,6 +37,7 @@ func (db *DB) DeleteUser(userID int, actor *models.User) error {
 
 	return nil
 }
+
 func (db *DB) UpdateUser(user *models.User) error {
 
 	bpas, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)

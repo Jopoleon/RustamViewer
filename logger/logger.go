@@ -23,24 +23,40 @@ type LocalLogger struct {
 }
 
 func NewLogger(productionStart string) *LocalLogger {
-	if productionStart == "0" {
-		ll := logrus.New()
-		childFormatter := logrus.TextFormatter{}
-		runtimeFormatter := &runtime.Formatter{ChildFormatter: &childFormatter}
-		runtimeFormatter.Line = true
-		runtimeFormatter.File = true
 
-		ll.SetFormatter(runtimeFormatter)
-		res := LocalLogger{
-			ll,
-			ll,
-			time.Now(),
-			nil,
-			"",
-			new(sync.RWMutex),
-		}
-		return &res
+	switch productionStart {
+	case "0":
+		fmt.Println("logging to Stdout")
+		return localLogger()
+	case "1":
+		fmt.Println("logging to local files in /projectRoot/logs and to Stdout")
+		return productionLogger()
+	default:
+		fmt.Println("logging to Stdout")
+		return localLogger()
 	}
+}
+
+func localLogger() *LocalLogger {
+	ll := logrus.New()
+	childFormatter := logrus.TextFormatter{}
+	runtimeFormatter := &runtime.Formatter{ChildFormatter: &childFormatter}
+	runtimeFormatter.Line = true
+	runtimeFormatter.File = true
+
+	ll.SetFormatter(runtimeFormatter)
+	res := LocalLogger{
+		ll,
+		ll,
+		time.Now(),
+		nil,
+		"",
+		new(sync.RWMutex),
+	}
+	return &res
+}
+
+func productionLogger() *LocalLogger {
 	ll := logrus.New()
 	childFormatter := logrus.JSONFormatter{}
 	runtimeFormatter := &runtime.Formatter{ChildFormatter: &childFormatter}
@@ -66,7 +82,6 @@ func NewLogger(productionStart string) *LocalLogger {
 	res.logFileWatcher()
 	return &res
 }
-
 func (ll *LocalLogger) createLogFile() error {
 	today := fmt.Sprintf("%d_%s_%d.txt",
 		time.Now().Year(),

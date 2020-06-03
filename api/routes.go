@@ -1,11 +1,8 @@
 package api
 
 import (
-	"time"
-
 	chiLog "github.com/766b/chi-logger"
 	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/middleware"
 )
 
 func (a *API) InitRouter() {
@@ -16,18 +13,31 @@ func (a *API) InitRouter() {
 
 	//Enabling Cross Origin Resource Sharing
 	r.Use(a.OptionsCors)
-	r.Use(middleware.Timeout(20 * time.Second))
+	//r.Use(middleware.Timeout(20 * time.Second))
 
 	r.Group(func(r chi.Router) {
-		r.MethodFunc("GET", "/login", a.LoginHandler)
+		r.MethodFunc("GET", "/login", a.IndexHandler)
+
 		r.MethodFunc("GET", "/auth", a.AuthHandler)
+
 		r.MethodFunc("GET", "/*", a.ServeStatic)
+
 		r.MethodFunc("POST", "/login", a.SubmitLogin)
 
+		r.MethodFunc("GET", "/", a.IndexHandler)
+		r.MethodFunc("GET", "/profile", a.IndexHandler)
+		r.MethodFunc("GET", "/profile/edit", a.IndexHandler)
+		r.MethodFunc("GET", "/user/add", a.IndexHandler)
+		r.MethodFunc("GET", "/project/add", a.IndexHandler)
+		r.MethodFunc("GET", "/company/add", a.IndexHandler)
+		r.MethodFunc("GET", "/tables", a.IndexHandler)
+		r.MethodFunc("GET", "/companieslist", a.IndexHandler) // with apps and users included
 		// Private business logic routes
 		r.Group(func(rr chi.Router) {
 			rr.Use(a.CheckAuth)
-			rr.MethodFunc("GET", "/", a.IndexHandler)
+
+			//rr.MethodFunc("GET", "/", a.IndexHandler)
+			//rr.MethodFunc("GET", "/tables", a.IndexHandler)
 
 			rr.MethodFunc("GET", "/logout", a.LogoutHandler)
 			rr.MethodFunc("GET", "/user", a.GetUser)
@@ -58,16 +68,16 @@ func (a *API) InitRouter() {
 
 			rr.Group(func(admin chi.Router) {
 				admin.Use(a.AdminOnly)
-				admin.MethodFunc("GET", "/companies", a.ListCompanies)           // with apps and users included
+				admin.MethodFunc("GET", "/companies", a.ListCompanies)
+				//admin.MethodFunc("GET", "/companieslist", a.IndexHandler)        // with apps and users included
 				admin.MethodFunc("GET", "/companies/{companyID}", a.CompanyByID) // with apps and users included
 				admin.MethodFunc("POST", "/company", a.CreateNewCompany)
 				admin.MethodFunc("DELETE", "/company/{ID}", a.DeleteCompany)
 
-				//admin.MethodFunc("GET", "/createUser", a.CreateNewUserTmpl)
 				admin.MethodFunc("POST", "/user", a.CreateNewUser)
 				admin.MethodFunc("DELETE", "/user/{ID}", a.DeleteUser)
+				admin.MethodFunc("DELETE", "/user/{ID}/project/{ProjectID}", a.DeleteUseFromProject)
 
-				//admin.MethodFunc("GET", "/projects", a.AddUserToProjectTmpl)
 				admin.MethodFunc("POST", "/projects/{userID}", a.AddUserToProject)
 				admin.MethodFunc("POST", "/project", a.CreateNewApplication)
 				admin.MethodFunc("DELETE", "/project/{ID}", a.DeleteApplication)
