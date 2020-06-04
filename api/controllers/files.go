@@ -34,10 +34,6 @@ func (a *Controllers) GetFile(w http.ResponseWriter, r *http.Request) {
 	}
 	f := File{}
 
-	//check if
-	pp.Println(call)
-	pp.Println(&call.ProfileName)
-	pp.Println(user.AppNames)
 	fName := call.ToFileName()
 	if !user.ProjectNameAccessRights(fmt.Sprintf("%s", *call.ProjectID)) {
 		http.Error(w, (fmt.Sprintf(FILE_NOT_FOUND, fName)), http.StatusNotFound)
@@ -51,7 +47,6 @@ func (a *Controllers) GetFile(w http.ResponseWriter, r *http.Request) {
 	}
 	f.Type = fileType
 
-	pp.Println(fName)
 	res, err := a.Repository.FTP.GetFile(fName, fileType)
 	if err != nil {
 		if strings.Contains(err.Error(), "no such file or directory") {
@@ -71,6 +66,22 @@ func (a *Controllers) GetFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	err = json.NewEncoder(w).Encode(f)
+	if err != nil {
+		a.Logger.Errorf("%v", err)
+		http.Error(w, ERROR_INTERNAL, http.StatusInternalServerError)
+		return
+	}
+}
+
+func (a *Controllers) ListFiles(w http.ResponseWriter, r *http.Request) {
+
+	list, err := a.Repository.FTP.ListFilesCallIDs()
+	if err != nil {
+		a.Logger.Errorf("%v", err)
+		http.Error(w, ERROR_INTERNAL, http.StatusInternalServerError)
+		return
+	}
+	err = json.NewEncoder(w).Encode(list)
 	if err != nil {
 		a.Logger.Errorf("%v", err)
 		http.Error(w, ERROR_INTERNAL, http.StatusInternalServerError)

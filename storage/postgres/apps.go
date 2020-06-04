@@ -67,7 +67,7 @@ func (db *DB) DeleteApplication(appID int) error {
 		db.Logger.Error(errors.WithStack(err))
 		return errors.WithStack(err)
 	}
-	_, err = db.DB.Exec("DELETE FROM projects_companies WHERE project_id=$1",
+	_, err = db.DB.Exec("DELETE FROM project_companies WHERE project_id=$1",
 		appID)
 	if err != nil {
 		db.Logger.Error(errors.WithStack(err))

@@ -36,15 +36,13 @@ func (a *API) InitRouter() {
 		r.Group(func(rr chi.Router) {
 			rr.Use(a.CheckAuth)
 
-			//rr.MethodFunc("GET", "/", a.IndexHandler)
-			//rr.MethodFunc("GET", "/tables", a.IndexHandler)
-
 			rr.MethodFunc("GET", "/logout", a.LogoutHandler)
 			rr.MethodFunc("GET", "/user", a.GetUser)
 			rr.MethodFunc("PUT", "/user", a.UpdateUser)
 
 			rr.MethodFunc("GET", "/waverecord/{ID}", a.GetArs)
 			rr.MethodFunc("GET", "/file", a.GetFile)
+			rr.MethodFunc("GET", "/file", a.ListFiles)
 
 			rr.MethodFunc("GET", "/export/calls", a.ExportCallsAll)
 			rr.MethodFunc("GET", "/export/callsOut", a.ExportCallsOutBound)

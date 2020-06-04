@@ -2,7 +2,9 @@ package ftp
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
+	"strings"
 
 	"github.com/pkg/errors"
 )
@@ -17,4 +19,20 @@ func (ftp *LocalFTP) GetFile(fileName, fileType string) (*os.File, error) {
 		return nil, errors.WithStack(err)
 	}
 	return file, nil
+}
+
+func (ftp *LocalFTP) ListFilesCallIDs() ([]string, error) {
+	var res []string
+	files, err := ioutil.ReadDir(ftp.FTPConfig.FilesPath)
+	if err != nil {
+		ftp.Logger.Errorf("%v", errors.WithStack(err))
+		return nil, errors.WithStack(err)
+	}
+	for _, f := range files {
+		sl := strings.Split(f.Name(), "_")
+		callID := sl[len(sl)-1]
+		res = append(res, callID)
+	}
+
+	return res, nil
 }

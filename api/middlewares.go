@@ -21,8 +21,8 @@ func (a *API) CheckAuth(next http.Handler) http.Handler {
 		if err != nil {
 			if err == http.ErrNoCookie {
 				a.Logger.Errorf("%v", err)
-				http.RedirectHandler("/login", http.StatusUnauthorized)
-				//http.Error(w, "no cookie found", http.StatusUnauthorized)
+				//http.RedirectHandler("/login", http.StatusUnauthorized)
+				http.Error(w, "no cookie found", http.StatusUnauthorized)
 				return
 			}
 			a.Logger.Errorf("%v", err)
@@ -38,12 +38,6 @@ func (a *API) CheckAuth(next http.Handler) http.Handler {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		//ctxUser := a.Controllers.UserFromContext(w, r)
-		//if ctxUser == nil || ctxUser.Login == "" {
-		//	a.Logger.Errorf("%v", err)
-		//	http.Redirect(w, r, "/login", http.StatusSeeOther)
-		//	return
-		//}
 		user, err := a.Repository.DB.GetUserByID(value.UserID)
 		if err != nil {
 			a.Logger.Errorf("%v", err)
