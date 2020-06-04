@@ -1,11 +1,13 @@
 package controllers
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/Jopoleon/rustamViewer/models"
 )
@@ -71,6 +73,10 @@ func (a *Controllers) GetFile(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		a.Logger.Errorf("%v", err)
 		http.Error(w, ERROR_INTERNAL, http.StatusInternalServerError)
+		return
+	}
+	if fileType == "wav" {
+		http.ServeContent(w, r, fName, time.Now(), bytes.NewReader(f.Data))
 		return
 	}
 	err = json.NewEncoder(w).Encode(f)
