@@ -26,10 +26,10 @@ func (a *API) InitRouter() {
 
 		r.MethodFunc("GET", "/", a.IndexHandler)
 		r.MethodFunc("GET", "/profile", a.IndexHandler)
-		r.MethodFunc("GET", "/profile/edit", a.IndexHandler)
-		r.MethodFunc("GET", "/user/add", a.IndexHandler)
-		r.MethodFunc("GET", "/project/add", a.IndexHandler)
-		r.MethodFunc("GET", "/company/add", a.IndexHandler)
+		r.MethodFunc("GET", "/profileedit", a.IndexHandler)
+		r.MethodFunc("GET", "/useradd", a.IndexHandler)
+		r.MethodFunc("GET", "/projectadd", a.IndexHandler)
+		r.MethodFunc("GET", "/companyadd", a.IndexHandler)
 		r.MethodFunc("GET", "/tables", a.IndexHandler)
 		r.MethodFunc("GET", "/companieslist", a.IndexHandler) // with apps and users included
 		// Private business logic routes
