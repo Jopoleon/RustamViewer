@@ -13,6 +13,13 @@ const PATH_FORMAT = "%s%s.%s"
 
 func (ftp *LocalFTP) GetFile(fileName, fileType string) (*os.File, error) {
 	path := fmt.Sprintf(PATH_FORMAT, ftp.FTPConfig.FilesPath, fileName, fileType)
+	//pp.Println(path)
+	//list, err := ftp.ListFilesCallIDs()
+	//if err != nil {
+	//	ftp.Logger.Errorf("%v", errors.WithStack(err))
+	//	return nil, errors.WithStack(err)
+	//}
+	//pp.Println(list)
 	file, err := os.OpenFile(path, os.O_RDONLY, 0777)
 	if err != nil {
 		ftp.Logger.Errorf("%v", errors.WithStack(err))

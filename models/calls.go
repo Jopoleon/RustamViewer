@@ -1,6 +1,10 @@
 package models
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/k0kubun/pp"
+)
 
 const FileNameTimeFormat = "2006-01-02_15-04-05"
 
@@ -28,6 +32,12 @@ type Calls struct {
 func (c *Calls) ToFileName() string {
 	//start_time _ project_id _ interaction_type _ source_address _ target_address _ callid
 	//2020-03-20_07-49-01_4953080492_Inbound_79167013970_4953080492_3bae508b-2c43-4142-8a9b-899255b4da9f
+	pp.Println("c.RecordTrans::  ", c.RecordTrans)
+	pp.Println("c.ProjectID::  ", c.ProjectID)
+	pp.Println("c.InteractionType::  ", c.InteractionType)
+	pp.Println("c.SourceAddress::  ", c.SourceAddress)
+	pp.Println("c.TargetAddress::  ", c.TargetAddress)
+	pp.Println("c.CallID::  ", c.CallID)
 	if c.RecordTrans != nil &&
 		c.ProjectID != nil &&
 		c.InteractionType != nil &&

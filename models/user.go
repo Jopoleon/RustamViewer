@@ -1,6 +1,8 @@
 package models
 
-import "errors"
+import (
+	"errors"
+)
 
 type User struct {
 	ID          int           `db:"id" json:"id"`
@@ -39,9 +41,12 @@ func (u *User) Validate() error {
 	return nil
 }
 
-func (u *User) ProjectNameAccessRights(projectName string) bool {
-	for _, pb := range u.Apps {
-		if projectName == pb.ProjectName {
+func ProjectNameAccessRights(projectName string, userApps []string) bool {
+	//pp.Println("ProjectNameAccessRights user list::: ", userApps)
+	for _, pb := range userApps {
+		//pp.Println("ProjectNameAccessRights user project::: ", pb)
+		//pp.Println("ProjectNameAccessRights incoming project::: ", projectName)
+		if projectName == pb {
 			return true
 		}
 	}
