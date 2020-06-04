@@ -42,7 +42,7 @@ func (a *API) InitRouter() {
 
 			rr.MethodFunc("GET", "/waverecord/{ID}", a.GetArs)
 			rr.MethodFunc("GET", "/file", a.GetFile)
-			rr.MethodFunc("GET", "/file", a.ListFiles)
+			rr.MethodFunc("GET", "/files", a.ListFiles)
 
 			rr.MethodFunc("GET", "/export/calls", a.ExportCallsAll)
 			rr.MethodFunc("GET", "/export/callsOut", a.ExportCallsOutBound)
