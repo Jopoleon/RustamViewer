@@ -41,10 +41,9 @@ func (db *DB) CreateNewApp(app *models.Application) error {
 
 func (db *DB) UpdateApp(app *models.Application) error {
 
-	q := `UPDATE projects SET project_name=$1,
-			description=$2, is_recording=$3, transcription=$4, language=$5	
-			WHERE id = $6;`
-	_, err := db.DB.Exec(q, app.ProjectName, app.Description, app.IsRecording, app.Transcription, app.Language)
+	q := `UPDATE projects SET description=$1, is_recording=$2, transcription=$3, language=$4	
+			WHERE id = $5;`
+	_, err := db.DB.Exec(q, app.Description, app.IsRecording, app.Transcription, app.Language, app.ID)
 	if err != nil {
 		db.Logger.Error(errors.WithStack(err))
 		return errors.WithStack(err)
