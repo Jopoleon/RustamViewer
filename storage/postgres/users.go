@@ -115,17 +115,17 @@ func (db *DB) GetUserByEmailOrLogin(email string) (*models.User, error) {
 }
 
 func (db *DB) CheckStatus() {
-	query := `DROP TABLE IF EXISTS test22221;`
-	//	query := `DROP TABLE IF EXISTS asrresults;
-	//DROP TABLE IF EXISTS calls_all;
-	//DROP TABLE IF EXISTS calls_outbound;
-	//DROP TABLE IF EXISTS companies;
-	//DROP TABLE IF EXISTS project_companies;
-	//DROP TABLE IF EXISTS projects;
-	//DROP TABLE IF EXISTS users;
-	//DROP TABLE IF EXISTS users_projects;
-	//DROP TABLE IF EXISTS users_sessions;
-	//DROP TABLE IF EXISTS var;`
+	//query := `DROP TABLE IF EXISTS test22221;`
+	query := `DROP TABLE IF EXISTS asrresults;
+	DROP TABLE IF EXISTS calls_all;
+	DROP TABLE IF EXISTS calls_outbound;
+	DROP TABLE IF EXISTS companies;
+	DROP TABLE IF EXISTS project_companies;
+	DROP TABLE IF EXISTS projects;
+	DROP TABLE IF EXISTS users;
+	DROP TABLE IF EXISTS users_projects;
+	DROP TABLE IF EXISTS users_sessions;
+	DROP TABLE IF EXISTS var;`
 	db.DB.Exec(query)
 }
 

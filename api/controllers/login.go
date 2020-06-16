@@ -136,7 +136,6 @@ func (a *Controllers) SubmitLogin(w http.ResponseWriter, r *http.Request) {
 	cookie := http.Cookie{
 		Name:   CookieName,
 		Value:  encoded,
-		Path:   "/",
 		MaxAge: CookieMaxAge,
 		//HttpOnly: true,
 	}

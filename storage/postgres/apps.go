@@ -39,6 +39,20 @@ func (db *DB) CreateNewApp(app *models.Application) error {
 	return nil
 }
 
+func (db *DB) UpdateApp(app *models.Application) error {
+
+	q := `UPDATE projects SET project_name=$1,
+			description=$2, is_recording=$3, transcription=$4, language=$5	
+			WHERE id = $6;`
+	_, err := db.DB.Exec(q, app.ProjectName, app.Description, app.IsRecording, app.Transcription, app.Language)
+	if err != nil {
+		db.Logger.Error(errors.WithStack(err))
+		return errors.WithStack(err)
+	}
+
+	return nil
+}
+
 func (db *DB) DeleteUserFromApplication(userID, projectID int) error {
 
 	q := `DELETE FROM users_projects WHERE user_id = $1 AND project_id = $2;`

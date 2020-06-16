@@ -78,6 +78,7 @@ func (a *API) InitRouter() {
 
 				admin.MethodFunc("POST", "/projects/{userID}", a.AddUserToProject)
 				admin.MethodFunc("POST", "/project", a.CreateNewApplication)
+				admin.MethodFunc("UPDATE", "/project", a.UpdateApplication)
 				admin.MethodFunc("DELETE", "/project/{ID}", a.DeleteApplication)
 			})
 		})

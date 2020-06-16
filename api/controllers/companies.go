@@ -52,6 +52,10 @@ func (a *Controllers) DeleteCompany(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	if actor.CompanyID == id {
+		http.Error(w, "can't delete your own company", http.StatusForbidden)
+		return
+	}
 	err = a.Repository.DB.DeleteCompany(id)
 	if err != nil {
 		a.Logger.Errorf("%v", err)

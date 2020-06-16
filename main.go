@@ -10,10 +10,8 @@ import (
 func main() {
 
 	cfg := config.NewConfig()
-
 	ll := logger.NewLogger(cfg.ProductionStart)
 	ll.Println("starting......")
-	ll.Println("hello123")
 	a, err := app.New(cfg, ll)
 	if err != nil {
 		logrus.Fatal(err)

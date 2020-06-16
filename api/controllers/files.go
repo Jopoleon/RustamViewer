@@ -27,6 +27,11 @@ func (a *Controllers) GetFile(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "fileType is invalid", http.StatusBadRequest)
 		return
 	}
+	download := params.Get("download")
+	if fileType == "" {
+		http.Error(w, "fileType is invalid", http.StatusBadRequest)
+		return
+	}
 	user := a.UserFromContext(w, r)
 	call, err := a.Repository.DB.GetCallsAllByID(id, user.AppNames)
 	if err != nil {
@@ -75,16 +80,34 @@ func (a *Controllers) GetFile(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, ERROR_INTERNAL, http.StatusInternalServerError)
 		return
 	}
-	if fileType == "wav" {
-		http.ServeContent(w, r, fName, time.Now(), bytes.NewReader(f.Data))
-		return
+	switch download {
+	case "true":
+		err = json.NewEncoder(w).Encode(f)
+		if err != nil {
+			a.Logger.Errorf("%v", err)
+			http.Error(w, ERROR_INTERNAL, http.StatusInternalServerError)
+			return
+		}
+	case "false":
+		if fileType == "wav" {
+			http.ServeContent(w, r, fName, time.Now(), bytes.NewReader(f.Data))
+			return
+		}
+	default:
+		err = json.NewEncoder(w).Encode(f)
+		if err != nil {
+			a.Logger.Errorf("%v", err)
+			http.Error(w, ERROR_INTERNAL, http.StatusInternalServerError)
+			return
+		}
 	}
-	err = json.NewEncoder(w).Encode(f)
-	if err != nil {
-		a.Logger.Errorf("%v", err)
-		http.Error(w, ERROR_INTERNAL, http.StatusInternalServerError)
-		return
-	}
+	//
+	//err = json.NewEncoder(w).Encode(f)
+	//if err != nil {
+	//	a.Logger.Errorf("%v", err)
+	//	http.Error(w, ERROR_INTERNAL, http.StatusInternalServerError)
+	//	return
+	//}
 }
 
 func (a *Controllers) ListFiles(w http.ResponseWriter, r *http.Request) {
