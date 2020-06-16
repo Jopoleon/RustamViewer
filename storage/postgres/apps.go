@@ -99,7 +99,9 @@ func (db *DB) DeleteApplication(appID int) error {
 
 func (db *DB) GetCompanyApps(companyID int) ([]models.Application, error) {
 	var res []models.Application
-	q := `SELECT projects.id, projects.project_name,projects.description FROM projects,project_companies 
+	q := `SELECT projects.id, projects.project_name,projects.description,projects.is_recording,
+				projects.transcription, projects.language
+				FROM projects,project_companies 
 				WHERE projects.id = project_companies.project_id 
 				AND project_companies.company_id = $1;`
 	err := db.DB.Select(&res, q, companyID)
