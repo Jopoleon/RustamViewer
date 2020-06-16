@@ -33,6 +33,21 @@ func (a *Controllers) GetAllArsWithFilters(w http.ResponseWriter, r *http.Reques
 	params := r.URL.Query()
 
 	user := a.UserFromContext(w, r)
+	if user.IsAdmin {
+		res, err := a.Repository.DB.GetAllARSAdmmin()
+		if err != nil {
+			a.Logger.Errorf("%v", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		err = json.NewEncoder(w).Encode(res)
+		if err != nil {
+			a.Logger.Errorf("%v", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		return
+	}
 
 	res, err := a.Repository.DB.GetAllAsrWithFilters(user.AppNames, params)
 	if err != nil {
@@ -47,7 +62,8 @@ func (a *Controllers) GetAllArsWithFilters(w http.ResponseWriter, r *http.Reques
 		return
 	}
 }
-func (a *Controllers) GetArs(w http.ResponseWriter, r *http.Request) {
+
+func (a *Controllers) ServeArsWaveRecord(w http.ResponseWriter, r *http.Request) {
 	ids := chi.URLParam(r, "ID")
 	if ids == "" {
 		w.WriteHeader(http.StatusBadRequest)
@@ -59,6 +75,17 @@ func (a *Controllers) GetArs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	user := a.UserFromContext(w, r)
+
+	if user.IsAdmin {
+		wav, err := a.Repository.DB.GetWaveRecordByIDAdmin(id)
+		if err != nil {
+			a.Logger.Errorf("%v", err)
+			return
+		}
+		http.ServeContent(w, r, *wav.Interpretation, time.Now(), bytes.NewReader(wav.Waverecord))
+		return
+	}
+
 	wav, err := a.Repository.DB.GetWaveRecordByID(id, user.AppNames)
 	if err != nil {
 		a.Logger.Errorf("%v", err)

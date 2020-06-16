@@ -94,3 +94,23 @@ func (db *DB) GetVarsByFilters(projectIDS []string,
 
 	return res, nil
 }
+
+func (db *DB) GetVarsAdmin() ([]models.VAR, error) {
+	res := []models.VAR{}
+	err := db.DB.Select(&res, "SELECT * FROM var;")
+	if err != nil {
+		db.Logger.Error(errors.WithStack(err))
+		return nil, errors.WithStack(err)
+	}
+	return res, nil
+}
+
+func (db *DB) GetVarsByCallIDAdmin(callID string) ([]models.VAR, error) {
+	res := []models.VAR{}
+	err := db.DB.Select(&res, "SELECT * FROM var WHERE callid = $1;", callID)
+	if err != nil {
+		db.Logger.Error(errors.WithStack(err))
+		return nil, errors.WithStack(err)
+	}
+	return res, nil
+}

@@ -40,7 +40,7 @@ func (a *API) InitRouter() {
 			rr.MethodFunc("GET", "/user", a.GetUser)
 			rr.MethodFunc("PUT", "/user", a.UpdateUser)
 
-			rr.MethodFunc("GET", "/waverecord/{ID}", a.GetArs)
+			rr.MethodFunc("GET", "/waverecord/{ID}", a.ServeArsWaveRecord)
 			rr.MethodFunc("GET", "/file", a.GetFile)
 			rr.MethodFunc("GET", "/files", a.ListFiles)
 

@@ -20,6 +20,16 @@ func (db *DB) GetWaveRecordByID(id int, projectNames []string) (*models.ASR, err
 	return &res, nil
 }
 
+func (db *DB) GetWaveRecordByIDAdmin(id int) (*models.ASR, error) {
+	res := models.ASR{}
+	err := db.DB.Get(&res, "SELECT * FROM asrresults WHERE id=$1;", id)
+	if err != nil {
+		db.Logger.Error(errors.WithStack(err))
+		return nil, errors.WithStack(err)
+	}
+	return &res, nil
+}
+
 func (db *DB) GetWaveRecordByCallID(callid string, projectNames []string) (*models.ASR, error) {
 	res := models.ASR{}
 	param := "{" + strings.Join(projectNames, ",") + "}"
@@ -42,9 +52,19 @@ func (db *DB) GetWaveRecordByProfileNames(projectIDS []string) ([]models.ASR, er
 	return res, nil
 }
 
-func (db *DB) GetWaveRecordByFilters(profileName string) ([]models.ASR, error) {
+func (db *DB) GetWaveRecordByProjectName(profileName string) ([]models.ASR, error) {
 	res := []models.ASR{}
 	err := db.DB.Select(&res, "SELECT * FROM asrresults WHERE profile=$1;", profileName)
+	if err != nil {
+		db.Logger.Error(errors.WithStack(err))
+		return nil, errors.WithStack(err)
+	}
+	return res, nil
+}
+
+func (db *DB) GetAllARSAdmmin() ([]models.ASR, error) {
+	res := []models.ASR{}
+	err := db.DB.Select(&res, "SELECT * FROM asrresults;")
 	if err != nil {
 		db.Logger.Error(errors.WithStack(err))
 		return nil, errors.WithStack(err)

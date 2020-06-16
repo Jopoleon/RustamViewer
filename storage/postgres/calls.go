@@ -61,3 +61,43 @@ func (db *DB) GetCallsOutboundProjectIDs(projectIDS []string) ([]models.CallsOut
 	}
 	return res, nil
 }
+
+func (db *DB) GetCallsAllAdmin() ([]models.Calls, error) {
+	res := []models.Calls{}
+	err := db.DB.Select(&res, "SELECT * FROM calls_all;")
+	if err != nil {
+		db.Logger.Error(errors.WithStack(err))
+		return nil, errors.WithStack(err)
+	}
+	return res, nil
+}
+func (db *DB) GetCallsOutboundAdmin() ([]models.CallsOutbound, error) {
+	res := []models.CallsOutbound{}
+	err := db.DB.Select(&res, "SELECT * FROM calls_outbound;")
+	if err != nil {
+		db.Logger.Error(errors.WithStack(err))
+		return nil, errors.WithStack(err)
+	}
+	return res, nil
+}
+
+func (db *DB) GetCallsAllByCallIDAdmin(callID string) ([]models.Calls, error) {
+	res := []models.Calls{}
+	err := db.DB.Select(&res, "SELECT * FROM calls_all WHERE callid = $1;", callID)
+	if err != nil {
+		db.Logger.Error(errors.WithStack(err))
+		return nil, errors.WithStack(err)
+	}
+	return res, nil
+}
+
+func (db *DB) GetCallsOutboundByCallIDAdmin(callID string) ([]models.CallsOutbound, error) {
+	res := []models.CallsOutbound{}
+
+	err := db.DB.Select(&res, "SELECT * FROM calls_outbound WHERE callid = $1;", callID)
+	if err != nil {
+		db.Logger.Error(errors.WithStack(err))
+		return nil, errors.WithStack(err)
+	}
+	return res, nil
+}
