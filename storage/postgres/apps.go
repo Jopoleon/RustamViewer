@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/Jopoleon/rustamViewer/models"
@@ -108,6 +109,9 @@ func (db *DB) GetCompanyApps(companyID int) ([]models.Application, error) {
 		db.Logger.Error(errors.WithStack(err))
 		return nil, errors.WithStack(err)
 	}
+	sort.Slice(res, func(i, j int) bool {
+		return res[i].ID < res[j].ID
+	})
 	for i, a := range res {
 		var users []models.User
 		appUserQ :=
